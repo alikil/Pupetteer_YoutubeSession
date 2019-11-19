@@ -1,0 +1,31 @@
+{
+  "name": "pupetteer_youtubesession",
+  "version": "1.0.0",
+  "description": "clicker for youtube videos",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alikil/Pupetteer_YoutubeSession.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alikil/Pupetteer_YoutubeSession/issues"
+  },
+  "homepage": "https://github.com/alikil/Pupetteer_YoutubeSession#readme",
+  "dependencies": {
+    "nodemon": "^1.19.4",
+    "puppeteer": "^2.0.0",
+    "ts-node": "^8.5.2",
+    "tslint": "^5.20.1",
+    "typescript": "^3.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^12.12.8",
+    "@types/puppeteer": "^1.20.2"
+  }
+}
