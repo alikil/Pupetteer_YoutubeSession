@@ -1,7 +1,18 @@
 import { readFileSync } from "fs";
 import { IMainAcc } from "../interfaces/interfaces";
 import { GetDate } from "./date";
-export class TakeNewProxy {
+class Proxy {
+    public static readProxy(acc: IMainAcc) {
+        let proxy: { ip: string, port: string, login?: string, pass?: string};
+        if (acc.proxy.includes("@")) {
+            const arrProxy = acc.proxy.match(/^(.*):(.*)@(.*):(.*$)/);
+            proxy = { ip : arrProxy[3], port : arrProxy[4], login : arrProxy[1], pass : arrProxy[2] };
+        } else {
+            const arrProxy = acc.proxy.match(/^(.*):(.*$)/);
+            proxy = { ip : arrProxy[1], port : arrProxy[2] };
+        }
+        return proxy;
+    }
     public proxy: string;
     constructor(acc: IMainAcc) {
         this.proxy = this.init(acc.country);
@@ -12,3 +23,5 @@ export class TakeNewProxy {
         return proxy;
     }
 }
+
+export { Proxy };
