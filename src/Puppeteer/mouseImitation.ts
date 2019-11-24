@@ -77,7 +77,9 @@ export class SimulateMouse {
     public static async SelectMoveClick(page: puppeteer.Page, selector: string) {
         return await this.takeSelectorPosition(page, selector).then(async (cords) => {
             await page.mouse.move(cords[0], cords[1], {steps: 100});
-            await page.click(selector);
+            await page.mouse.down();
+            await this.sleep(500);
+            await page.mouse.up();
         });
     }
     public static async randomMoves(page: puppeteer.Page, count: number) {
