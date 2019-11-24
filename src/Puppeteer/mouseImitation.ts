@@ -1,11 +1,7 @@
 import * as puppeteer from "puppeteer";
 
 export class SimulateMouse {
-    public viewport: number[];
-    constructor() {
-        this.viewport = [1280, 720];
-    }
-    public async mousejsInject(page: puppeteer.Page) {
+    public static async mousejsInject(page: puppeteer.Page) {
         await page.evaluate(() => {
             const box = document.createElement("div");
             box.classList.add("mouse-helper");
@@ -68,28 +64,38 @@ export class SimulateMouse {
             }
         });
     }
-    public async takeSelectorPosition(page: puppeteer.Page, selector: string) {
+    public static takeSelectorPosition = async (page: puppeteer.Page, selector: string) => {
         return await page.evaluate((select) => {
+            function random(min: number, max: number) { return Math.floor(Math.random() * (max - min + 1) ) + min; }
             const element = document.querySelector(select);
             const position = element.getBoundingClientRect();
-            const xrand = Math.floor(Math.random() * position.left);
-            const yrand = Math.floor(Math.random() * position.top);
-            return [xrand, yrand];
+            const xrand = random(position.left, position.right);
+            const yrand = random(position.top, position.bottom);
+            return Promise.resolve([xrand, yrand]);
         }, selector);
     }
-    public async randomMoves(page: puppeteer.Page) {
-        console.log(this.randomXY()[0], this.randomXY()[1]);
-        for (let index = 0; index < 40 ; index++) {
-            await page.mouse.move(this.randomXY()[0], this.randomXY()[1], {steps: 100});
-            await this.sleep(200);
-        }
-        return page;
+    public static async SelectMoveClick(page: puppeteer.Page, selector: string) {
+        return await this.takeSelectorPosition(page, selector).then(async (cords) => {
+            await page.mouse.move(cords[0], cords[1], {steps: 100});
+            await page.click(selector);
+        });
     }
-    public randomXY() {
-        const x = Math.floor(Math.random() * this.viewport[0]);
-        const y = Math.floor(Math.random() * this.viewport[1]);
-        const z = Math.floor(Math.random() * 150);
+    public static async randomMoves(page: puppeteer.Page, count: number) {
+        for (let index = 0; index < count ; index++) {
+            const randXYZ = this.randomXY();
+            await page.mouse.move(randXYZ[0], randXYZ[1], {steps: randXYZ[2]});
+            await this.sleepRand(50, 200);
+        }
+    }
+    public static randomXY() {
+        const x = Math.floor(Math.random() * 1200);
+        const y = Math.floor(Math.random() * 700);
+        const z = this.random(80, 200);
         return [ x, y, z ];
     }
-    public sleep = (time: number) => new Promise((res) => {setTimeout(res, time); });
+    public static sleep = (time: number) => new Promise((res) => {setTimeout(res, time); });
+    public static sleepRand = (min: number, max: number) => new Promise((res) => {
+        setTimeout(res, SimulateMouse.random(min, max));
+    })
+    public static random(min: number, max: number) {return Math.floor(Math.random() * (max - min + 1) ) + min; }
 }

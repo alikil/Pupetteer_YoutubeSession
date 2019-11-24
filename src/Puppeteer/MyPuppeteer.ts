@@ -1,6 +1,8 @@
 import * as puppeteer from "puppeteer";
 import { env } from "../index";
+import { AdvertPage } from "./advertizefn";
 import { SimulateMouse } from "./mouseImitation";
+import { YoutubeFunctions } from "./youtubefn";
 
 export class MyPuppeteer {
     constructor() {
@@ -28,51 +30,34 @@ export class MyPuppeteer {
         });
     }
     private async initPage(browser: puppeteer.Browser) {
-        const mouseImitation = new SimulateMouse();
         const page = await browser.newPage();
-        await page.goto("https://www.youtube.com/watch?v=fVwaEjbtom8");
-        await this.clickPlayButton(page);
-        await this.clickSkipAds(page);
-        await mouseImitation.mousejsInject(page);
-        await mouseImitation.randomMoves(page);
+        await page.goto("https://www.youtube.com/watch?v=ADlGkXAz1D0");
+        await YoutubeFunctions.clickPlayButton(page);
+        await YoutubeFunctions.clickSkipAds(page);
+        await SimulateMouse.mousejsInject(page);
+        await SimulateMouse.randomMoves(page, 5);
+        const pageTarget = page.target();
+        await YoutubeFunctions.clickAD(page);
 
-        console.log("ok");
-        await this.clickAD(page, mouseImitation);
+        await this.toNextPageClick(browser, pageTarget);
+
         await page.waitFor(2500000);
         return Promise.resolve("EndPageTask");
     }
-    // Youtube functions
-    private clickPlayButton = async (page: puppeteer.Page) => {
-        const youtubeStartButton = `#movie_player > div.ytp-cued-thumbnail-overlay[style="display: none;"]`;
-        const youtubeStartButtonClick = `#movie_player > div.ytp-cued-thumbnail-overlay > button`;
-        await page.waitForSelector(youtubeStartButton, {timeout: 5000}).catch(async () => {
-            console.log("Play button found => Click");
-            await page.click(youtubeStartButtonClick);
-            await page.waitForSelector(youtubeStartButton, {timeout: 5000}).catch(() => {
-                console.log("Hard Error => Play button not clicked!");
-                process.exit();
-            });
-        });
-    }
-    private clickSkipAds = async (page: puppeteer.Page) => {
-        const skipButton = `button.ytp-ad-skip-button.ytp-button`;
-        await page.waitFor(5500);
-        await page.waitForSelector(skipButton, {timeout: 7000}).then(
-            async () => {
-                console.log("Skip button found => Click");
-                await page.click(skipButton);
+    private async toNextPageClick(browser: puppeteer.Browser, pageTarget: puppeteer.Target) {
+        await browser.waitForTarget((target) => target.opener() === pageTarget)
+        .then(
+            async (newTarget) => {
+                await newTarget.page().then(async (newPage) => {
+                    console.log("newPage");
+                    await newPage.waitForSelector("body");
+                    console.log("newPage => selector body");
+                    return new AdvertPage(newPage);
+                });
             },
-            async () => {
-                console.log("Skip button not found => OK");
+            async (err) => {
+                console.log("err button");
             },
         );
-    }
-    private async clickAD(page: puppeteer.Page, mouseImitation: SimulateMouse) {
-        const adbutton = "div.style-scope.ytd-iframe-companion-renderer > iframe";
-        const cords = await mouseImitation.takeSelectorPosition(page, adbutton);
-        console.log(cords);
-        // await page.waitFor(11500);
-        // await page.click(adbutton);
-        console.log("ad button clicked");
     }
 }
