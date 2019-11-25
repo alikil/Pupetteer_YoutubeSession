@@ -74,13 +74,27 @@ export class SimulateMouse {
             return Promise.resolve([xrand, yrand]);
         }, selector);
     }
-    public static async SelectMoveClick(page: puppeteer.Page, selector: string) {
-        return await this.takeSelectorPosition(page, selector).then(async (cords) => {
-            await page.mouse.move(cords[0], cords[1], {steps: 100});
-            await page.mouse.down();
-            await this.sleep(500);
-            await page.mouse.up();
-        });
+    public static takeElementPosition = async (page: puppeteer.Page, element: puppeteer.ElementHandle<Element>) => {
+        return await page.evaluate((elem) => {
+            function random(min: number, max: number) { return Math.floor(Math.random() * (max - min + 1) ) + min; }
+            const position = elem.getBoundingClientRect();
+            const xrand = random(position.left, position.right);
+            const yrand = random(position.top, position.bottom);
+            return Promise.resolve([xrand, yrand]);
+        }, element);
+    }
+    public static async SelectMoveClick(page: puppeteer.Page, selector: string | puppeteer.ElementHandle<Element>) {
+        let position: number[];
+        if (typeof selector === "string") {
+            position = await this.takeSelectorPosition(page, selector);
+        } else {
+            position = await this.takeElementPosition(page, selector);
+        }
+        await page.mouse.move(position[0], position[1], {steps: 100});
+        await this.sleep(100);
+        await page.mouse.down();
+        await this.sleep(800);
+        await page.mouse.up();
     }
     public static async randomMoves(page: puppeteer.Page, count: number) {
         for (let index = 0; index < count ; index++) {

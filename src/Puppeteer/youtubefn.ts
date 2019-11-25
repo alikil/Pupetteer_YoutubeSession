@@ -29,7 +29,19 @@ class YoutubeFunctions {
     }
     public static clickAD = async (page: puppeteer.Page) => {
         const fullAdFrame = "ytd-player-legacy-desktop-watch-ads-renderer.style-scope.ytd-watch-flexy iframe";
-        const partnerYtVideo = "[src^='https://www.youtube.com/ad_companion?adformat=']";
+
+        const filter = `#video-wall-thumbs-v2 > a.all-thumbs-v2.thumb-large,
+            ${fullAdFrame} a[href^='/watch?']
+            ${fullAdFrame}[src^='https://www.youtube.com/ad_companion?adformat=']
+        `;
+
+        console.log(filter);
+        await page.$(filter).catch(async (err) => {
+            console.log("Ad => GoogleAd => Reload");
+            await page.reload();
+            await page.waitFor(8000);
+            await YoutubeFunctions.clickAD(page);
+        });
 
         await page.$(fullAdFrame).then(async (val) => {
             if (val === null) {
@@ -38,11 +50,11 @@ class YoutubeFunctions {
                 await page.waitFor(5000);
                 await YoutubeFunctions.clickAD(page);
             } else {
+                await SimulateMouse.SelectMoveClick(page, fullAdFrame);
+                console.log("ad button clicked");
                 console.log("Ad => Found");
             }
         });
-        await SimulateMouse.SelectMoveClick(page, fullAdFrame);
-        console.log("ad button clicked");
     }
 }
 

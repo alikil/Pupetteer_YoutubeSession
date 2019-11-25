@@ -1,18 +1,38 @@
 import * as puppeteer from "puppeteer";
+import { SimulateMouse } from "./mouseImitation";
 
 export class AdvertPage {
     public page: puppeteer.Page;
     constructor(page: puppeteer.Page) {
-        console.log("loaded");
         this.main(page);
     }
     private async main(page: puppeteer.Page) {
-        console.log("main start");
-        await this.takeNav(page);
+        await page.waitForSelector("body");
+        console.log("loaded");
+        const before = page.url();
+        await this.ClickRandomHref(page, before);
     }
-    private async takeNav(page: puppeteer.Page) {
-        console.log("take Nav");
-        const navCount = await page.$$eval("nav", (navs) => navs);
-        console.log(navCount);
+    private async ClickRandomHref(page: puppeteer.Page, before?: string) {
+        let hrefAll = await page.$$("[href^='/']");
+        if (hrefAll.length < 3) {
+            hrefAll = await page.$$("[href^='http']");
+        }
+        const href = hrefAll[Math.floor(Math.random() * hrefAll.length)];
+        await page.evaluate((elem) => {
+            elem.scrollIntoView();
+        }, href);
+        await SimulateMouse.SelectMoveClick(page, href).then(
+            async (ok) => {
+                if (page.url() === before) {
+                    await this.ClickRandomHref(page, before);
+                } else {
+                    console.log("ok");
+                }
+            },
+            async (err) => {
+                await this.ClickRandomHref(page, before);
+                return page;
+            },
+        );
     }
 }

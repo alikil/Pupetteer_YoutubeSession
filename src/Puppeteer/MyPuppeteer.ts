@@ -6,10 +6,11 @@ import { YoutubeFunctions } from "./youtubefn";
 
 export class MyPuppeteer {
     constructor() {
-        this.initBrowser().then((browser) => {
-            const p1 = this.initPage(browser);
+        this.initBrowser().then(async (browser) => {
+            const p1 = await this.initPage(browser);
             // const p2 = this.initPage(browser);
-            Promise.all([p1]).then(() => {browser.close(); });
+            // Promise.all([p1]).then(() => {browser.close(); });
+            return "ok";
         });
     }
     private initBrowser() {
@@ -32,20 +33,18 @@ export class MyPuppeteer {
     private async initPage(browser: puppeteer.Browser) {
         const page = await browser.newPage();
         await page.goto("https://www.youtube.com/watch?v=ADlGkXAz1D0");
+        const pageTarget = page.target();
         await YoutubeFunctions.clickPlayButton(page);
         await YoutubeFunctions.clickSkipAds(page);
         await SimulateMouse.mousejsInject(page);
         await SimulateMouse.randomMoves(page, 5);
-        const pageTarget = page.target();
         await YoutubeFunctions.clickAD(page);
-
-        await this.toNextPageClick(browser, pageTarget);
-
+        await this.toNextPageClick(browser, pageTarget, page);
         await page.waitFor(2500000);
         return Promise.resolve("EndPageTask");
     }
-    private async toNextPageClick(browser: puppeteer.Browser, pageTarget: puppeteer.Target) {
-        await browser.waitForTarget((target) => target.opener() === pageTarget)
+    private async toNextPageClick(browser: puppeteer.Browser, pageTarget: puppeteer.Target, page: puppeteer.Page) {
+        await browser.waitForTarget((target) => (target.opener() === pageTarget), {timeout: 12000} )
         .then(
             async (newTarget) => {
                 await newTarget.page().then(async (newPage) => {
@@ -56,7 +55,11 @@ export class MyPuppeteer {
                 });
             },
             async (err) => {
-                console.log("err button");
+                console.log("err button => again click");
+                await page.waitFor(8000);
+                await SimulateMouse.randomMoves(page, 2);
+                await YoutubeFunctions.clickAD(page);
+                await this.toNextPageClick(browser, pageTarget, page);
             },
         );
     }
