@@ -28,7 +28,10 @@ class YoutubeFunctions {
         );
     }
     public static clickAD = async (page: puppeteer.Page) => {
-        const fullAdFrame = "ytd-player-legacy-desktop-watch-ads-renderer.style-scope.ytd-watch-flexy iframe";
+        const fullAdFrame = `ytd-player-legacy-desktop-watch-ads-renderer.style-scope.ytd-watch-flexy iframe,
+        #taw0 > div > table > tbody > tr:nth-child(2) > td > div > table > tbody > tr > td.rh11c > div > table > tbody > tr:nth-child(1) > td > div > a > img,
+        #taw0 > div > table > tbody > tr:nth-child(2) > td > div > table > tbody > tr > td.rh11c > div > table > tbody > tr:nth-child(2) > td > div > table
+        `;
 
         const filter = `#video-wall-thumbs-v2 > a.all-thumbs-v2.thumb-large,
             ${fullAdFrame} a[href^='/watch?']

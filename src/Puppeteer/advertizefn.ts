@@ -18,20 +18,25 @@ export class AdvertPage {
             hrefAll = await page.$$("[href^='http']");
         }
         const href = hrefAll[Math.floor(Math.random() * hrefAll.length)];
-        await page.evaluate((elem) => {
-            elem.scrollIntoView();
-        }, href);
+        await page.evaluate((elem) => { elem.scrollIntoView(); }, href);
         await SimulateMouse.SelectMoveClick(page, href).then(
             async (ok) => {
+                console.log("click => ok");
+                await page.waitForNavigation({timeout: 5000}).catch(async (err) => {
+                    console.log("Navigation err");
+                    await this.ClickRandomHref(page, before);
+                });
                 if (page.url() === before) {
+                    console.log("before : after => " + page.url() + "\n" + before);
                     await this.ClickRandomHref(page, before);
                 } else {
                     console.log("ok");
+                    Promise.resolve(page);
                 }
             },
             async (err) => {
+                console.log("click => err");
                 await this.ClickRandomHref(page, before);
-                return page;
             },
         );
     }

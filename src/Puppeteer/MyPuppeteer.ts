@@ -1,11 +1,14 @@
 import * as puppeteer from "puppeteer";
 import { env } from "../index";
+import { Logger } from "../modules/logger";
 import { AdvertPage } from "./advertizefn";
 import { SimulateMouse } from "./mouseImitation";
 import { YoutubeFunctions } from "./youtubefn";
 
 export class MyPuppeteer {
+    private log: Logger;
     constructor() {
+        this.log = new Logger();
         this.initBrowser().then(async (browser) => {
             const p1 = await this.initPage(browser);
             // const p2 = this.initPage(browser);
@@ -33,6 +36,7 @@ export class MyPuppeteer {
     private async initPage(browser: puppeteer.Browser) {
         const page = await browser.newPage();
         await page.goto("https://www.youtube.com/watch?v=ADlGkXAz1D0");
+        this.log.saveTo(page.url());
         const pageTarget = page.target();
         await YoutubeFunctions.clickPlayButton(page);
         await YoutubeFunctions.clickSkipAds(page);
