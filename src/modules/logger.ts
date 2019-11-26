@@ -1,4 +1,4 @@
-import { appendFileSync, existsSync, mkdirSync } from "fs";
+import { appendFileSync, existsSync, mkdirSync, readFileSync } from "fs";
 import { GetDate } from "./date";
 
 export class Logger {
@@ -8,7 +8,13 @@ export class Logger {
         this.init();
     }
     public saveTo(info: string) {
-        appendFileSync(`${this.path}/${new GetDate().dmy}.txt`, `${info}\n`);
+        const file = `${this.path}/${new GetDate().dmy}.txt`;
+        const textFile = readFileSync(file, "utf8");
+        if (textFile.includes(info)) {
+            console.log("line already exist");
+        } else {
+            appendFileSync(file, `${info}\n`);
+        }
     }
     private init() {
         if (!existsSync(this.path)) { mkdirSync(this.path); }

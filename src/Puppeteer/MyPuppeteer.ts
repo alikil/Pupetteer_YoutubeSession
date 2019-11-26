@@ -43,6 +43,7 @@ export class MyPuppeteer {
         await SimulateMouse.mousejsInject(page);
         await SimulateMouse.randomMoves(page, 5);
         await YoutubeFunctions.clickAD(page);
+        await page.waitFor(5000);
         await this.toNextPageClick(browser, pageTarget, page);
         await page.waitFor(2500000);
         return Promise.resolve("EndPageTask");
@@ -52,9 +53,7 @@ export class MyPuppeteer {
         .then(
             async (newTarget) => {
                 await newTarget.page().then(async (newPage) => {
-                    console.log("newPage");
                     await newPage.waitForSelector("body");
-                    console.log("newPage => selector body");
                     return new AdvertPage(newPage);
                 });
             },

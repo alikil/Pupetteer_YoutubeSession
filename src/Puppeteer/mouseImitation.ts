@@ -87,8 +87,13 @@ export class SimulateMouse {
         let position: number[];
         if (typeof selector === "string") {
             position = await this.takeSelectorPosition(page, selector);
+            await page.evaluate((select) => {
+                const elem = document.querySelector(select);
+                elem.scrollIntoView({ behavior: "smooth" });
+            }, selector);
         } else {
             position = await this.takeElementPosition(page, selector);
+            await page.evaluate((elem) => { elem.scrollIntoView({ behavior: "smooth" }); }, selector);
         }
         await page.mouse.move(position[0], position[1], {steps: 100});
         await this.sleep(100);

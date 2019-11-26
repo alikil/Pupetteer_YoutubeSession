@@ -28,23 +28,30 @@ class YoutubeFunctions {
         );
     }
     public static clickAD = async (page: puppeteer.Page) => {
-        const fullAdFrame = `ytd-player-legacy-desktop-watch-ads-renderer.style-scope.ytd-watch-flexy iframe,
+        const fullAdFrame = `
         #taw0 > div > table > tbody > tr:nth-child(2) > td > div > table > tbody > tr > td.rh11c > div > table > tbody > tr:nth-child(1) > td > div > a > img,
-        #taw0 > div > table > tbody > tr:nth-child(2) > td > div > table > tbody > tr > td.rh11c > div > table > tbody > tr:nth-child(2) > td > div > table
+        #taw0 > div > table > tbody > tr:nth-child(2) > td > div > table > tbody > tr > td.rh11c > div > table > tbody > tr:nth-child(2) > td > div > table,
+        ytd-player-legacy-desktop-watch-ads-renderer.style-scope.ytd-watch-flexy iframe
         `;
 
         const filter = `#video-wall-thumbs-v2 > a.all-thumbs-v2.thumb-large,
             ${fullAdFrame} a[href^='/watch?']
             ${fullAdFrame}[src^='https://www.youtube.com/ad_companion?adformat=']
+            #video-wall-container-v2
         `;
-
-        console.log(filter);
-        await page.$(filter).catch(async (err) => {
-            console.log("Ad => GoogleAd => Reload");
-            await page.reload();
-            await page.waitFor(8000);
-            await YoutubeFunctions.clickAD(page);
-        });
+        await page.$$(filter).then(
+            async (found) => {
+                if (found.length === 0) {
+                    console.log("filtered");
+                } else {
+                    console.log("reload");
+                    console.log(found +  `\n ${found.length}`);
+                    await page.reload();
+                    await page.waitFor(5000);
+                    await YoutubeFunctions.clickAD(page);
+                }
+            },
+        );
 
         await page.$(fullAdFrame).then(async (val) => {
             if (val === null) {
