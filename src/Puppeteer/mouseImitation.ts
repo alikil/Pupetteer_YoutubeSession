@@ -66,7 +66,7 @@ export class SimulateMouse {
     }
     public static takeSelectorPosition = async (page: puppeteer.Page, selector: string) => {
         return await page.evaluate((select) => {
-            function random(min: number, max: number) { return Math.floor(Math.random() * (max - min + 1) ) + min; }
+            function random(min: number, max: number) { return Math.floor( Math.random() * (max - min + 1) + min); }
             const element = document.querySelector(select);
             const position = element.getBoundingClientRect();
             const xrand = random(position.left, position.right);
@@ -76,7 +76,7 @@ export class SimulateMouse {
     }
     public static takeElementPosition = async (page: puppeteer.Page, element: puppeteer.ElementHandle<Element>) => {
         return await page.evaluate((elem) => {
-            function random(min: number, max: number) { return Math.floor(Math.random() * (max - min + 1) ) + min; }
+            function random(min: number, max: number) { return Math.floor( Math.random() * (max - min + 1) + min); }
             const position = elem.getBoundingClientRect();
             const xrand = random(position.left, position.right);
             const yrand = random(position.top, position.bottom);
@@ -85,16 +85,25 @@ export class SimulateMouse {
     }
     public static async SelectMoveClick(page: puppeteer.Page, selector: string | puppeteer.ElementHandle<Element>) {
         let position: number[];
+        // selector
         if (typeof selector === "string") {
-            position = await this.takeSelectorPosition(page, selector);
             await page.evaluate((select) => {
-                const elem = document.querySelector(select);
-                elem.scrollIntoView({ behavior: "smooth" });
+                    const elem = document.querySelector(select);
+                    elem.scrollIntoView();
             }, selector);
+            await page.waitFor(1000);
+            position = await this.takeSelectorPosition(page, selector);
+            console.log("Selector position => " + position);
         } else {
+        // Element
+            await page.evaluate((elem) => {
+                    elem.scrollIntoView();
+            }, selector);
+            await page.waitFor(1000);
             position = await this.takeElementPosition(page, selector);
-            await page.evaluate((elem) => { elem.scrollIntoView({ behavior: "smooth" }); }, selector);
+            console.log("Element position => " + position);
         }
+        await page.waitFor(1000);
         await page.mouse.move(position[0], position[1], {steps: 100});
         await this.sleep(100);
         await page.mouse.down();

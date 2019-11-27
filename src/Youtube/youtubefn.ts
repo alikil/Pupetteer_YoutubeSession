@@ -1,5 +1,5 @@
 import * as puppeteer from "puppeteer";
-import { SimulateMouse } from "./mouseImitation";
+import { SimulateMouse } from "../Puppeteer/mouseImitation";
 
 class YoutubeFunctions {
     public static clickPlayButton = async (page: puppeteer.Page) => {
@@ -29,30 +29,10 @@ class YoutubeFunctions {
     }
     public static clickAD = async (page: puppeteer.Page) => {
         const fullAdFrame = `
-        #taw0 > div > table > tbody > tr:nth-child(2) > td > div > table > tbody > tr > td.rh11c > div > table > tbody > tr:nth-child(1) > td > div > a > img,
-        #taw0 > div > table > tbody > tr:nth-child(2) > td > div > table > tbody > tr > td.rh11c > div > table > tbody > tr:nth-child(2) > td > div > table,
-        ytd-player-legacy-desktop-watch-ads-renderer.style-scope.ytd-watch-flexy iframe
+        #squareThrone > div.ns-khitf-e-1,
+        #squareThrone > div.ns-khitf-e-2.bottom,
+        iframe[src^="https://googleads.g.doubleclick.net/pagead/ads?"]
         `;
-
-        const filter = `#video-wall-thumbs-v2 > a.all-thumbs-v2.thumb-large,
-            ${fullAdFrame} a[href^='/watch?']
-            ${fullAdFrame}[src^='https://www.youtube.com/ad_companion?adformat=']
-            #video-wall-container-v2
-        `;
-        await page.$$(filter).then(
-            async (found) => {
-                if (found.length === 0) {
-                    console.log("filtered");
-                } else {
-                    console.log("reload");
-                    console.log(found +  `\n ${found.length}`);
-                    await page.reload();
-                    await page.waitFor(5000);
-                    await YoutubeFunctions.clickAD(page);
-                }
-            },
-        );
-
         await page.$(fullAdFrame).then(async (val) => {
             if (val === null) {
                 console.log("Ad => Nou found");
