@@ -8,7 +8,7 @@ export class MAinSetings {
         this.acc = this.init(env);
     }
     private init(env: IEnv) {
-        const accountFile = `${env.AppPath}/Sites/${env.UserSite}/${env.Login}.txt`;
+        const accountFile = `${env.AppPath}/Sites/Youtube/${env.Login}.txt`;
         let acc: IMainAcc;
         if (!existsSync(accountFile)) {
             console.log("Account not Found " + accountFile);

@@ -89,7 +89,7 @@ export class SimulateMouse {
         if (typeof selector === "string") {
             await page.evaluate((select) => {
                     const elem = document.querySelector(select);
-                    elem.scrollIntoView();
+                    elem.scrollIntoView({block: "nearest"});
             }, selector);
             await page.waitFor(1000);
             position = await this.takeSelectorPosition(page, selector);
@@ -97,7 +97,7 @@ export class SimulateMouse {
         } else {
         // Element
             await page.evaluate((elem) => {
-                    elem.scrollIntoView();
+                    elem.scrollIntoView({block: "nearest"});
             }, selector);
             await page.waitFor(1000);
             position = await this.takeElementPosition(page, selector);
