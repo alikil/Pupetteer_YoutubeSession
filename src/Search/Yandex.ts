@@ -12,6 +12,7 @@ export class Yandex {
     public log: Logger;
     public word: string;
     public site: string;
+    public newPage: puppeteer.Page;
     constructor(MyPuppet: MyPuppeteer, link: string, words: string[], referer: string, site: string) {
         this.log = new Logger();
         this.browser = MyPuppet.browser;
@@ -22,8 +23,8 @@ export class Yandex {
         this.word = words[Math.floor(Math.random() * words.length)];
         this.site = site;
     }
-    public init() {
-        this.page.then(async (page: puppeteer.Page) => {
+    public async init() {
+        this.newPage = await this.page.then(async (page: puppeteer.Page) => {
             await page.setUserAgent(this.useragent);
             await page.goto(this.link, { referer: this.referer});
             this.log.saveTo(page.url());
@@ -33,7 +34,6 @@ export class Yandex {
             await page.keyboard.press("Enter");
             await page.waitForNavigation();
 
-            const pageTarget = page.target();
             await SimulateMouse.mousejsInject(page);
 
             const helplink = this.site.replace(/\./g, "\.").replace(/\*/g, ".");
@@ -50,24 +50,10 @@ export class Yandex {
             });
             const link = bbf[0].match(/href=\"(.*?)\"/)[1].toString();
             await page.setUserAgent(this.useragent);
-
             const selectornext = `a[href^="${link}"]`;
-
-            console.log(selectornext);
-
+            const pageTarget = page.target();
             await SimulateMouse.SelectMoveClick(page, selectornext);
-            await page.waitFor(200000);
-            /*
-            const waiter = await SimulateMouse.randomMoves(page, 5);
-            const timer = await SimulateMouse.sleep(5000);
-            await Promise.all([waiter, timer]).then(async () => {
-                await SimulateMouse.randomMoves(page, 5);
-                await page.waitFor(2500000);
-                return Promise.resolve("EndPageTask");
-            });
-            page.close();
-            this.browser.then((browser) => { browser.close(); });
-            */
+            return page;
         });
     }
 }
