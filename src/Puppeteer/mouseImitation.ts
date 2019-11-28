@@ -87,19 +87,18 @@ export class SimulateMouse {
         let position: number[];
         // selector
         if (typeof selector === "string") {
-            await page.evaluate((select) => {
-                    const elem = document.querySelector(select);
-                    elem.scrollIntoView({block: "nearest"});
-            }, selector);
-            await page.waitFor(1000);
+            await page.$eval(selector, (elem) => {
+                elem.scrollIntoView({block: "nearest", behavior: "smooth" });
+                return new Promise((res) => {setTimeout(res, 1500); });
+            });
             position = await this.takeSelectorPosition(page, selector);
             console.log("Selector position => " + position);
         } else {
         // Element
             await page.evaluate((elem) => {
-                    elem.scrollIntoView({block: "nearest"});
+                elem.scrollIntoView({block: "nearest", behavior: "smooth" });
+                return new Promise((res) => {setTimeout(res, 1500); });
             }, selector);
-            await page.waitFor(1000);
             position = await this.takeElementPosition(page, selector);
             console.log("Element position => " + position);
         }
@@ -112,15 +111,38 @@ export class SimulateMouse {
     }
     public static async randomMoves(page: puppeteer.Page, count: number) {
         for (let index = 0; index < count ; index++) {
+            await SimulateMouse.scrollBottomRand(page);
             const randXYZ = this.randomXY();
             await page.mouse.move(randXYZ[0], randXYZ[1], {steps: randXYZ[2]});
             await this.sleepRand(50, 200);
         }
     }
+    public static async scrollLazytobottom(page: puppeteer.Page) {
+        const bodyHandle = await page.$("body");
+        const { height } = await bodyHandle.boundingBox();
+        await bodyHandle.dispose();
+        const viewportHeight = page.viewport().height;
+        let viewportIncr = 0;
+        while (viewportIncr + viewportHeight < height) {
+            await page.evaluate((heightw) => {
+                window.scrollBy(0, heightw);
+            }, viewportHeight);
+            await this.sleep(20);
+            viewportIncr = viewportIncr + viewportHeight;
+        }
+    }
+    public static async scrollBottomRand(page: puppeteer.Page) {
+        const viewportHeight = page.viewport().height;
+        const skrl = viewportHeight / this.random(4, 12);
+        await page.evaluate((heightw) => {
+            window.scrollBy({ top: heightw, behavior: "smooth" });
+        }, skrl);
+        await this.sleep(60);
+    }
     public static randomXY() {
         const x = Math.floor(Math.random() * 1200);
         const y = Math.floor(Math.random() * 700);
-        const z = this.random(80, 200);
+        const z = this.random(65, 200);
         return [ x, y, z ];
     }
     public static sleep = (time: number) => new Promise((res) => {setTimeout(res, time); });

@@ -14,6 +14,7 @@ export class AdvertPage {
         await page.waitFor(3000);
         console.log("loaded");
         this.log.saveTo(page.url());
+        await SimulateMouse.mousejsInject(page);
         await this.WorkWithPage(page, 4);
         await page.close();
     }
@@ -30,12 +31,13 @@ export class AdvertPage {
     }
     private async ClickRandomHref(page: puppeteer.Page, before?: string[]) {
         await page.waitFor(3000);
-        let hrefAll = await page.$$("[href^='/']");
+        let hrefAll = await page.$$("a[href^='/']");
         if (hrefAll.length < 3) {
-            hrefAll = await page.$$("[href^='http']");
+            hrefAll = await page.$$("a[href^='http']");
         }
         const href = hrefAll[Math.floor(Math.random() * hrefAll.length)];
-        await SimulateMouse.SelectMoveClick(page, href).catch(async (err) => {
+        await SimulateMouse.SelectMoveClick(page, href);
+        await page.waitForNavigation({ timeout: 8000 }).catch(async (err) => {
                 console.log("click => err");
                 await this.ClickRandomHref(page, before);
         });

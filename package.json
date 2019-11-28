@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon src/index.ts",
     "coinextrude": "nodemon src/social.coinextrude.com.ts",
-    "2268163": "nodemon src/2268163.ts"
+    "2268163": "nodemon src/2268163.ts",
+    "1681664": "nodemon src/1681664.ts"
   },
   "repository": {
     "type": "git",
