@@ -8,10 +8,9 @@ import { YoutubeFunctions } from "./youtubefn";
 export class YoutubeWatchClickAd {
     public browser: Promise<puppeteer.Browser>;
     public page: Promise<puppeteer.Page>;
+    public nextPage: puppeteer.Page;
     private link: string;
-    private log: Logger;
     constructor(MyPuppet: MyPuppeteer, link: string, referer?: string) {
-        this.log = new Logger();
         this.browser = MyPuppet.browser;
         this.page = MyPuppet.page;
         this.link = link;
@@ -19,7 +18,6 @@ export class YoutubeWatchClickAd {
     public async init() {
         return await this.page.then(async (page: puppeteer.Page) => {
             await page.goto(this.link);
-            this.log.saveTo(page.url());
             const pageTarget = page.target();
             await YoutubeFunctions.clickPlayButton(page);
             await YoutubeFunctions.clickSkipAds(page);
@@ -32,6 +30,7 @@ export class YoutubeWatchClickAd {
                 await YoutubeFunctions.clickAD(page);
                 return await this.toNextPageClick(pageTarget, page);
             });
+            this.nextPage = adPage;
             return adPage;
         });
     }

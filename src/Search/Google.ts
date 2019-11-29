@@ -1,5 +1,5 @@
 import * as puppeteer from "puppeteer";
-import { Logger } from "../modules/logger";
+import { ILogSettings, Logger } from "../modules/logger";
 import { SimulateMouse } from "../Puppeteer/mouseImitation";
 import { MyPuppeteer } from "../Puppeteer/MyPuppeteer";
 
@@ -7,7 +7,7 @@ interface ISearchData {
     readonly link: string;
     readonly referer: string;
     readonly words: string[];
-    readonly wwhelpWord?: string;
+    readonly wwhelpWord: string;
 }
 
 export class Google {
@@ -16,12 +16,12 @@ export class Google {
     public referer?: string;
     public useragent: string;
     public link: string;
-    public log: Logger;
     public word: string;
     public wwhelpWord: string;
     public newPage: puppeteer.Page;
-    constructor(MyPuppet: MyPuppeteer, data: ISearchData) {
-        this.log = new Logger();
+    public log: Logger;
+    constructor(MyPuppet: MyPuppeteer, data: ISearchData, log: Logger) {
+        this.log = log;
         this.browser = MyPuppet.browser;
         this.page = MyPuppet.page;
         this.useragent = MyPuppet.UserAgent;
@@ -38,19 +38,20 @@ export class Google {
             await page.type(inputSelector, this.word, {delay: 90});
             await page.keyboard.press("Enter");
             await page.waitForNavigation();
+            if (this.log.search.pic === true) {await this.log.savePicture(page, "search" ); }
+            if (this.log.search.url === true) {this.log.saveUrl(page.url()); }
             await SimulateMouse.mousejsInject(page);
-
             const selector = `div#main div.g div.r > a[href^='http']`;
             const helplink = this.wwhelpWord.replace(/\./g, "\.").replace(/\*/g, ".");
             const regexHelplink = new RegExp(`${helplink}`, "g");
 
             const aaa = await page.$$eval(selector, (elems) => {
-                return elems.map((value, index, array) => {
+                return elems.map((value) => {
                     return value.outerHTML;
                 });
             });
 
-            const bbf = aaa.filter((value, index, array) => {
+            const bbf = aaa.filter((value) => {
                 return value.match(regexHelplink);
             });
 

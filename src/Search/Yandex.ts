@@ -16,13 +16,13 @@ export class Yandex {
     public referer?: string;
     public useragent: string;
     public link: string;
-    public log: Logger;
     public word: string;
     public wwhelpWord: string;
     public newPage: puppeteer.Page;
     public nexpage: puppeteer.Page;
-    constructor(MyPuppet: MyPuppeteer, data: ISearchDataYandex) {
-        this.log = new Logger();
+    public log: Logger;
+    constructor(MyPuppet: MyPuppeteer, data: ISearchDataYandex, log: Logger) {
+        this.log = log;
         this.browser = MyPuppet.browser;
         this.page = MyPuppet.page;
         this.useragent = MyPuppet.UserAgent;
@@ -35,13 +35,14 @@ export class Yandex {
         return this.page.then(async (page: puppeteer.Page) => {
             await page.setUserAgent(this.useragent);
             await page.goto(this.link, { referer: this.referer});
-            this.log.saveTo(page.url());
 
             const inputSelector = "input.input__control.input__input";
             await page.type(inputSelector, this.word, {delay: 90});
             await page.keyboard.press("Enter");
             await page.waitForNavigation();
             await page.waitFor(4000);
+            if (this.log.search.pic === true) {await this.log.savePicture(page, "search" ); }
+            if (this.log.search.url === true) {this.log.saveUrl(page.url()); }
             await SimulateMouse.mousejsInject(page);
 
             const helplink = this.wwhelpWord.replace(/\./g, "\.").replace(/\*/g, ".");
@@ -49,11 +50,11 @@ export class Yandex {
             const selector = `ul[aria-label="Результаты поиска"] > li > div.organic_with-related_yes`;
             console.log(regexve);
             const aaa = await page.$$eval(selector, (elems) => {
-                return elems.map((value, index, array) => {
+                return elems.map((value) => {
                     return value.innerHTML;
                 });
             });
-            const bbf = aaa.filter((value, index, array) => {
+            const bbf = aaa.filter((value) => {
                 return value.match(regexve);
             });
             const link = bbf[0].match(/href=\"(.*?)\"/)[1].toString();
