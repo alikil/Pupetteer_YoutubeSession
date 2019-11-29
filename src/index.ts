@@ -26,7 +26,7 @@ const num = 693896;
         const advPage = new AdvertPage(aPageRules, log);
         await advPage.main(await Youtube.page);
         await advPage.page.close();
-        await Youtube.browser.then((browser) => browser.close());
+        MyPuppet.browser.then((br) => { br.close(); });
     }
     // Google
     if (adNumber === 1681664) {
@@ -47,7 +47,7 @@ const num = 693896;
         const advPage = new AdvertPage(data.adPageRules, log);
         await advPage.main(sitepage);
         await advPage.page.close();
-        await search.browser.then((browser) => browser.close());
+        MyPuppet.browser.then((br) => { br.close(); });
     }
     // Yandex
     if (adNumber === 2268163) {
@@ -74,7 +74,7 @@ const num = 693896;
         const advPage = new AdvertPage(data.adPageRules, log);
         await advPage.main(sitepage);
         await advPage.page.close();
-        await search.browser.then((browser) => browser.close());
+        MyPuppet.browser.then((br) => { br.close(); });
     }
     // Facebook
     if (adNumber === 693896) {
