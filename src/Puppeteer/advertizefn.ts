@@ -47,18 +47,21 @@ export class AdvertPage {
             hrefAll = await page.$$("a[href^='/']");
         }
         const href = hrefAll[Math.floor(Math.random() * hrefAll.length)];
-        await SimulateMouse.SelectMoveClick(page, href);
-        await page.waitForNavigation({ timeout: 8000 }).then(
-            async (res) => {
-                await page.waitFor(5000);
-                if (before.includes(page.url())) { await this.ClickRandomHref(page, before); } else {
-                    console.log("ok " + page.url());
-                }
-            },
-            async (err) => {
-                console.log("click => err");
-                await this.ClickRandomHref(page, before);
-            },
-        );
+        const checkForElemWork = await SimulateMouse.takeElementPosition(page, href);
+        if (checkForElemWork === [0, 0]) { this.ClickRandomHref(page, before); } else {
+            await SimulateMouse.SelectMoveClick(page, href);
+            await page.waitForNavigation({ timeout: 8000 }).then(
+                async (res) => {
+                    await page.waitFor(5000);
+                    if (before.includes(page.url())) { await this.ClickRandomHref(page, before); } else {
+                        console.log("ok " + page.url());
+                    }
+                },
+                async (err) => {
+                    console.log("click => err");
+                    await this.ClickRandomHref(page, before);
+                },
+            );
+        }
     }
 }

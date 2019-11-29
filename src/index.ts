@@ -99,13 +99,11 @@ const num = 693896;
         const hrefRand = hrefAll[Math.floor(Math.random() * hrefAll.length)];
         await SimulateMouse.SelectMoveClick(sitepage, hrefRand);
         const cseGoogleCom = await redirect.toNextPage(sitepage);
-
         const cseselectall = await sitepage.$$(`div.gsc-thumbnail-inside div.gs-title > a.gs-title[href]`);
         const csehrefRand = cseselectall[Math.floor(Math.random() * cseselectall.length)];
         await SimulateMouse.SelectMoveClick(cseGoogleCom, csehrefRand);
         const adpage = await redirect.toNextPage(sitepage);
         await advPage.main(adpage);
-        await advPage.page.close();
-        await MyPuppet.browser.then((br) => { br.close(); });
+        MyPuppet.browser.then((br) => { br.close(); });
     }
 })(num);
