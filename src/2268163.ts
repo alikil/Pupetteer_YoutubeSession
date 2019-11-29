@@ -33,10 +33,24 @@ async function start() {
         "Паляцела яго птушка вечнасці",
         "Вокруг сенсации: Приключения ручной Машки",
         ];
-        const site = "agr*gor*dok-s*ly.*om";
-        const search = new Yandex(MyPuppet, link, words, referer, site);
-        await search.init();
-        const name = new AdvertPage(search.newPage);
+        const data = {
+            link: "https://yandex.by/?from=tabbar",
+            referer: "https://seosprint.net/read-task?435d03481o28cfe03fco671eab90o5423dfad6ao231d1a321d",
+            words: [
+                "Родной край прославит плодотворной работой",
+                "Солы для Алега з падпіскай",
+                "Паляцела яго птушка вечнасці",
+                "Вокруг сенсации: Приключения ручной Машки",
+            ],
+            wwhelpWord: "agr*gor*dok-s*ly.*om",
+        };
+        const search = new Yandex(MyPuppet, data);
+        const sitepage = await search.init();
+        const aPageRules = {
+            steps: 4,
+            waitAtPage: 20,
+        };
+        const name = new AdvertPage(sitepage, aPageRules);
     }
 }
 start();

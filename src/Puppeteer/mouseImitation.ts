@@ -89,7 +89,7 @@ export class SimulateMouse {
         if (typeof selector === "string") {
             await page.$eval(selector, (elem) => {
                 elem.scrollIntoView({block: "nearest", behavior: "smooth" });
-                return new Promise((res) => {setTimeout(res, 1500); });
+                return new Promise((res) => {setTimeout(res, 2000); });
             });
             position = await this.takeSelectorPosition(page, selector);
             console.log("Selector position => " + position);
@@ -97,7 +97,7 @@ export class SimulateMouse {
         // Element
             await page.evaluate((elem) => {
                 elem.scrollIntoView({block: "nearest", behavior: "smooth" });
-                return new Promise((res) => {setTimeout(res, 1500); });
+                return new Promise((res) => {setTimeout(res, 2000); });
             }, selector);
             position = await this.takeElementPosition(page, selector);
             console.log("Element position => " + position);

@@ -5,8 +5,14 @@ import { SimulateMouse } from "./mouseImitation";
 export class AdvertPage {
     public page: puppeteer.Page;
     public log: Logger;
-    constructor(page: puppeteer.Page) {
+    public steps: number;
+    public waitAtPage: number;
+    public UserSite: RegExpMatchArray;
+    constructor(page: puppeteer.Page, rules: { steps: any; waitAtPage: number; }) {
+        this.steps = rules.steps;
+        this.waitAtPage = rules.waitAtPage;
         this.log = new Logger();
+        this.UserSite = page.url().match(/\/\/(.*)\//);
         this.main(page);
     }
     private async main(page: puppeteer.Page) {
@@ -15,14 +21,14 @@ export class AdvertPage {
         console.log("loaded");
         this.log.saveTo(page.url());
         await SimulateMouse.mousejsInject(page);
-        await this.WorkWithPage(page, 4);
+        await this.WorkWithPage(page);
         await page.close();
     }
-    private async WorkWithPage(page: puppeteer.Page, count: number) {
+    private async WorkWithPage(page: puppeteer.Page) {
         const before: string[] = [];
-        for (let index = 0; index < count; index++) {
-            const waiter = await SimulateMouse.randomMoves(page, 15);
-            const timer = await SimulateMouse.sleep(10000);
+        for (let index = 0; index < this.steps; index++) {
+            const waiter = SimulateMouse.randomMoves(page, 15);
+            const timer = SimulateMouse.sleep(this.waitAtPage * 1000);
             before.push(page.url());
             await Promise.all([waiter, timer]).then(async () => {
                 await this.ClickRandomHref(page, before);
@@ -33,7 +39,10 @@ export class AdvertPage {
         await page.waitFor(3000);
         let hrefAll = await page.$$("a[href^='/']");
         if (hrefAll.length < 3) {
-            hrefAll = await page.$$("a[href^='http']");
+            hrefAll = await page.$$(`a[href^='http://${this.UserSite}/']`);
+        }
+        if (hrefAll.length < 3) {
+            hrefAll = await page.$$(`a[href^='https://${this.UserSite}/']`);
         }
         const href = hrefAll[Math.floor(Math.random() * hrefAll.length)];
         await SimulateMouse.SelectMoveClick(page, href);

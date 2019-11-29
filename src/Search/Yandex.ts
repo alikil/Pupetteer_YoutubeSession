@@ -3,6 +3,13 @@ import { Logger } from "../modules/logger";
 import { SimulateMouse } from "../Puppeteer/mouseImitation";
 import { MyPuppeteer } from "../Puppeteer/MyPuppeteer";
 
+interface ISearchDataYandex {
+    readonly link: string;
+    readonly referer: string;
+    readonly words: string[];
+    readonly wwhelpWord?: string;
+}
+
 export class Yandex {
     public browser: Promise<puppeteer.Browser>;
     public page: Promise<puppeteer.Page>;
@@ -11,20 +18,21 @@ export class Yandex {
     public link: string;
     public log: Logger;
     public word: string;
-    public site: string;
+    public wwhelpWord: string;
     public newPage: puppeteer.Page;
-    constructor(MyPuppet: MyPuppeteer, link: string, words: string[], referer: string, site: string) {
+    public nexpage: puppeteer.Page;
+    constructor(MyPuppet: MyPuppeteer, data: ISearchDataYandex) {
         this.log = new Logger();
         this.browser = MyPuppet.browser;
         this.page = MyPuppet.page;
         this.useragent = MyPuppet.UserAgent;
-        this.link = link;
-        this.referer = referer;
-        this.word = words[Math.floor(Math.random() * words.length)];
-        this.site = site;
+        this.link = data.link;
+        this.referer = data.referer;
+        this.word = data.words[Math.floor(Math.random() * data.words.length)];
+        this.wwhelpWord = data.wwhelpWord;
     }
     public async init() {
-        this.newPage = await this.page.then(async (page: puppeteer.Page) => {
+        return this.page.then(async (page: puppeteer.Page) => {
             await page.setUserAgent(this.useragent);
             await page.goto(this.link, { referer: this.referer});
             this.log.saveTo(page.url());
@@ -33,10 +41,10 @@ export class Yandex {
             await page.type(inputSelector, this.word, {delay: 90});
             await page.keyboard.press("Enter");
             await page.waitForNavigation();
-
+            await page.waitFor(4000);
             await SimulateMouse.mousejsInject(page);
 
-            const helplink = this.site.replace(/\./g, "\.").replace(/\*/g, ".");
+            const helplink = this.wwhelpWord.replace(/\./g, "\.").replace(/\*/g, ".");
             const regexve = new RegExp(`http.?:\/\/${helplink}`, "g");
             const selector = `ul[aria-label="Результаты поиска"] > li > div.organic_with-related_yes`;
             console.log(regexve);
@@ -53,7 +61,16 @@ export class Yandex {
             const selectornext = `a[href^="${link}"]`;
             const pageTarget = page.target();
             await SimulateMouse.SelectMoveClick(page, selectornext);
-            return page;
+            return await this.toNextPage(pageTarget, page, selectornext);
         });
+    }
+    private async toNextPage( pageTarget: puppeteer.Target, page: puppeteer.Page, selectornext: string) {
+        const browser = await this.browser;
+        const nextTarget = await browser.waitForTarget((t) => (t.opener() === pageTarget));
+        const newpage = await nextTarget.page().then(async (newPage) => {
+            await newPage.waitForSelector("body");
+            return newPage;
+        });
+        return newpage;
     }
 }

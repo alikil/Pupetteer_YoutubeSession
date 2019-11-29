@@ -15,10 +15,9 @@ export class YoutubeWatchClickAd {
         this.browser = MyPuppet.browser;
         this.page = MyPuppet.page;
         this.link = link;
-        this.init();
     }
     public async init() {
-        this.page.then(async (page: puppeteer.Page) => {
+        return await this.page.then(async (page: puppeteer.Page) => {
             await page.goto(this.link);
             this.log.saveTo(page.url());
             const pageTarget = page.target();
@@ -28,35 +27,21 @@ export class YoutubeWatchClickAd {
 
             const waiter = await SimulateMouse.randomMoves(page, 5);
             const timer = await SimulateMouse.sleep(5000);
-            await Promise.all([waiter, timer]).then(async () => {
+            const adPage = await Promise.all([waiter, timer]).then(async () => {
                 await SimulateMouse.randomMoves(page, 5);
                 await YoutubeFunctions.clickAD(page);
-                await this.toNextPageClick(pageTarget, page);
-                await page.waitFor(2500000);
-                return Promise.resolve("EndPageTask");
+                return await this.toNextPageClick(pageTarget, page);
             });
-            page.close();
-            this.browser.then((browser) => { browser.close(); });
+            return adPage;
         });
     }
     private async toNextPageClick( pageTarget: puppeteer.Target, page: puppeteer.Page) {
-        this.browser.then((browser) => {
-            browser.waitForTarget((target) => (target.opener() === pageTarget), {timeout: 12000} )
-            .then(
-                async (newTarget) => {
-                    await newTarget.page().then(async (newPage) => {
-                        await newPage.waitForSelector("body");
-                        return new AdvertPage(newPage);
-                    });
-                },
-                async (err) => {
-                    console.log("err button => again click");
-                    await page.waitFor(8000);
-                    await SimulateMouse.randomMoves(page, 2);
-                    await YoutubeFunctions.clickAD(page);
-                    await this.toNextPageClick(pageTarget, page);
-                },
-            );
+        const browser = await this.browser;
+        const nextTarget = await browser.waitForTarget((t) => (t.opener() === pageTarget));
+        const newpage = await nextTarget.page().then(async (newPage) => {
+            await newPage.waitForSelector("body");
+            return newPage;
         });
+        return newpage;
     }
 }

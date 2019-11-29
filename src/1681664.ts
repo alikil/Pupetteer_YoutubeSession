@@ -25,15 +25,19 @@ const MyPuppet = new MyPuppeteer(env, acc);
 
 async function start() {
     if (num === 2268163) {
-        const link = "https://www.google.com/";
-        const referer = "https://seosprint.net/read-task?62636ee00o40128f7368o1150910o38104c6abco754a9ed901";
-        const words = [
-            "достичь стройности и легкости без строгих диет и голодания",
-        ];
-        const helpWord = "pa**ta0*.r*";
-        const search = new Google(MyPuppet, link, words, referer, helpWord);
-        await search.init();
-        const name = new AdvertPage(search.newPage);
+        const data = {
+            link: "https://www.google.com/",
+            referer: "https://seosprint.net/read-task?62636ee00o40128f7368o1150910o38104c6abco754a9ed901",
+            words: [
+                "достичь стройности и легкости без строгих диет и голодания",
+            ],
+            wwhelpWord: "pa**ta0*.r*",
+        };
+        const search = new Google(MyPuppet, data);
+        const sitepage = await search.init();
+
+        const aPageRules = { steps: 4, waitAtPage: 20 };
+        const name = new AdvertPage(sitepage, aPageRules);
     }
 }
 start();
