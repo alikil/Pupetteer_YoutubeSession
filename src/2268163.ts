@@ -1,27 +1,9 @@
-import { existsSync, mkdirSync } from "fs";
-import { IEnv } from "./interfaces/env";
-import { MAinSetings } from "./modules/MAinSetings";
 import { AdvertPage } from "./Puppeteer/advertizefn";
 import { MyPuppeteer } from "./Puppeteer/MyPuppeteer";
 import { Yandex } from "./Search/Yandex";
-
-export const env: IEnv = {
-    AppPath : process.env.AppPath || "C:/pupett",
-    Login : process.env.Login || "abakeliya",
-    UserSite : process.env.UserSite || "Youtube",
-};
-
-if (!existsSync(`${env.AppPath}/${env.UserSite}`)) {
-    mkdirSync(`${env.AppPath}/${env.UserSite}`);
-}
-if (!existsSync(`${env.AppPath}/${env.UserSite}/${env.Login}`)) {
-    mkdirSync(`${env.AppPath}/${env.UserSite}/${env.Login}`);
-}
+const MyPuppet = new MyPuppeteer();
 
 const num = 2268163;
-
-const acc = new MAinSetings(env).acc;
-const MyPuppet = new MyPuppeteer(env, acc);
 
 async function start() {
     if (num === 2268163) {

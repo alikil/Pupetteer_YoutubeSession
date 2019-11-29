@@ -1,7 +1,9 @@
+import { existsSync, mkdirSync } from "fs";
 import * as puppeteer from "puppeteer";
 import { IEnv } from "../interfaces/env";
 import { IMainAcc } from "../interfaces/interfaces";
 import { IProxy } from "../interfaces/proxy";
+import { MAinSetings } from "../modules/MAinSetings";
 import { Proxy } from "../modules/takeProxy";
 
 export class MyPuppeteer {
@@ -12,14 +14,27 @@ export class MyPuppeteer {
     public referer: string;
     public UserAgent: string;
     private proxy: IProxy;
-    constructor(env: IEnv, acc: IMainAcc, referer?: string) {
-        this.env = env;
-        this.acc = acc;
-        this.proxy = Proxy.readProxy(acc);
-        this.referer = referer;
-        this.UserAgent = acc.useragent;
+    constructor() {
+        this.initUser();
+        this.proxy = Proxy.readProxy(this.acc);
+        this.UserAgent = this.acc.useragent;
         this.browser = this.initBrowser();
         this.page = this.browser.then(async (browser) => this.initPage(browser));
+    }
+    private initUser() {
+        const env: IEnv = {
+            AppPath : process.env.AppPath || "C:/pupett",
+            Login : process.env.Login || "abakeliya",
+            UserSite : process.env.UserSite || "Youtube",
+        };
+        this.env = env;
+        if (!existsSync(`${env.AppPath}/${env.UserSite}`)) {
+            mkdirSync(`${env.AppPath}/${env.UserSite}`);
+        }
+        if (!existsSync(`${env.AppPath}/${env.UserSite}/${env.Login}`)) {
+            mkdirSync(`${env.AppPath}/${env.UserSite}/${env.Login}`);
+        }
+        this.acc = new MAinSetings(env).acc;
     }
     private initBrowser() {
         const extensions = {
