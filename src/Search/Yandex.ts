@@ -35,7 +35,6 @@ export class Yandex {
         return this.page.then(async (page: puppeteer.Page) => {
             await page.setUserAgent(this.useragent);
             await page.goto(this.link, { referer: this.referer});
-
             const inputSelector = "input.input__control.input__input";
             await page.type(inputSelector, this.word, {delay: 90});
             await page.keyboard.press("Enter");
@@ -44,7 +43,6 @@ export class Yandex {
             if (this.log.search.pic === true) {await this.log.savePicture(page, "search" ); }
             if (this.log.search.url === true) {this.log.saveUrl(page.url()); }
             await SimulateMouse.mousejsInject(page);
-
             const helplink = this.wwhelpWord.replace(/\./g, "\.").replace(/\*/g, ".");
             const regexve = new RegExp(`http.?:\/\/${helplink}`, "g");
             const selector = `ul[aria-label="Результаты поиска"] > li > div.organic_with-related_yes`;

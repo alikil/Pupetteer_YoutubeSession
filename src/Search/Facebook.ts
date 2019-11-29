@@ -6,11 +6,11 @@ import { MyPuppeteer } from "../Puppeteer/MyPuppeteer";
 interface ISearchData {
     readonly link: string;
     readonly referer: string;
-    readonly words: string[];
+    readonly words?: string[];
     readonly wwhelpWord: string;
 }
 
-export class Google {
+export class Facebook {
     public browser: Promise<puppeteer.Browser>;
     public page: Promise<puppeteer.Page>;
     public referer?: string;
@@ -27,24 +27,19 @@ export class Google {
         this.useragent = MyPuppet.UserAgent;
         this.link = data.link;
         this.referer = data.referer;
-        this.word = data.words[Math.floor(Math.random() * data.words.length)];
+        if (data.words) { this.word = data.words[Math.floor(Math.random() * data.words.length)]; }
         this.wwhelpWord = data.wwhelpWord;
     }
     public async init() {
         return await this.page.then(async (page: puppeteer.Page) => {
             await page.setUserAgent(this.useragent);
             await page.goto(this.link, { referer: this.referer});
-            const inputSelector = `input[title="Поиск"]`;
-            await page.type(inputSelector, this.word, {delay: 90});
-            await page.keyboard.press("Enter");
-            await page.waitForNavigation();
             if (this.log.search.pic === true) {await this.log.savePicture(page, "search" ); }
             if (this.log.search.url === true) {this.log.saveUrl(page.url()); }
             await SimulateMouse.mousejsInject(page);
-            const selector = `div#main div.g div.r > a[href^='http']`;
+            const selector = `a[href^="http"]`;
             const helplink = this.wwhelpWord.replace(/\./g, "\.").replace(/\*/g, ".");
             const regexHelplink = new RegExp(`${helplink}`, "g");
-
             const aaa = await page.$$eval(selector, (elems) => {
                 return elems.map((value) => {
                     return value.outerHTML;
@@ -53,11 +48,9 @@ export class Google {
             const bbf = aaa.filter((value) => {
                 return value.match(regexHelplink);
             });
-            const link = bbf[0].match(/href=\"(.*?)\"/)[1].toString();
-            await page.setUserAgent(this.useragent);
-            const selectornext = `a[href^="${link}"] > h3`;
+            const link = bbf[0].match(/href=\"(.*?)\"/)[1].toString().match(/(.*)\&/)[1];
+            const selectornext = `a[href^="${link}"]`;
             await SimulateMouse.SelectMoveClick(page, selectornext);
-            await page.waitForNavigation();
             return page;
         });
     }

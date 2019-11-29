@@ -8,17 +8,17 @@ export class AdvertPage {
     public waitAtPage: number;
     public log: Logger;
     public UserSite: string;
-    constructor(page: puppeteer.Page, rules: { steps: any; waitAtPage: number; }, log: Logger) {
+    constructor(rules: { steps: any; waitAtPage: number; }, log: Logger) {
         this.log = log;
         this.steps = rules.steps;
         this.waitAtPage = rules.waitAtPage;
-        this.UserSite = page.url().match(/\/\/(.*?)\//)[1];
     }
     public async main(page: puppeteer.Page) {
         await page.waitForSelector("body");
         await page.waitFor(3000);
         console.log("loaded");
         await SimulateMouse.mousejsInject(page);
+        this.UserSite = page.url().match(/\/\/(.*?)\//)[1];
         await this.WorkWithPage(page);
         await page.close();
     }
@@ -26,6 +26,7 @@ export class AdvertPage {
         const before: string[] = [];
         for (let index = 0; index < this.steps; index++) {
             console.log(this.UserSite);
+            console.log(page.url());
             if (this.log.advert.pic === true) {await this.log.savePicture(page, `${index}_${this.UserSite}` ); }
             if (this.log.advert.url === true) {this.log.saveUrl(page.url()); }
             const waiter = SimulateMouse.randomMoves(page, 15);
@@ -47,13 +48,17 @@ export class AdvertPage {
         }
         const href = hrefAll[Math.floor(Math.random() * hrefAll.length)];
         await SimulateMouse.SelectMoveClick(page, href);
-        await page.waitForNavigation({ timeout: 8000 }).catch(async (err) => {
+        await page.waitForNavigation({ timeout: 8000 }).then(
+            async (res) => {
+                await page.waitFor(5000);
+                if (before.includes(page.url())) { await this.ClickRandomHref(page, before); } else {
+                    console.log("ok " + page.url());
+                }
+            },
+            async (err) => {
                 console.log("click => err");
                 await this.ClickRandomHref(page, before);
-        });
-        await page.waitFor(5000);
-        if (before.includes(page.url())) { await this.ClickRandomHref(page, before); } else {
-            console.log("ok " + page.url());
-        }
+            },
+        );
     }
 }

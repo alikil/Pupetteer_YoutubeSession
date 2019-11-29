@@ -22,7 +22,6 @@ export class YoutubeWatchClickAd {
             await YoutubeFunctions.clickPlayButton(page);
             await YoutubeFunctions.clickSkipAds(page);
             await SimulateMouse.mousejsInject(page);
-
             const waiter = await SimulateMouse.randomMoves(page, 5);
             const timer = await SimulateMouse.sleep(5000);
             const adPage = await Promise.all([waiter, timer]).then(async () => {
