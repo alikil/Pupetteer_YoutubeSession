@@ -33,6 +33,7 @@ export class Logger {
         } else {
             appendFileSync(file, `${info}\n`);
         }
+        return "ok";
     }
     public async savePicture(page: puppeteer.Page, name: string) {
         await page.screenshot({path: `${this.screenshotPath}/${name}.jpeg`, type: "jpeg", fullPage: false });

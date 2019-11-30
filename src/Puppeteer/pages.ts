@@ -20,6 +20,7 @@ export class Redirect {
             },
             async (nextTarget) => {
                 console.log("similarPage");
+                await oldPage.waitFor(1000);
                 return oldPage;
             },
         );

@@ -51,7 +51,7 @@ export class MyPuppeteer {
                 `--load-extension=${extensions.PupeteerRecorder}`,
                 `--load-extension=${extensions.WebRTC}`,
                 // `--load-extension=${extensions.TimeShift}`,
-                `--proxy-server=${proxyurl}`,
+                // `--proxy-server=${proxyurl}`,
                 "--disable-setuid-sandbox",
                 "--no-sandbox",
                 "--disable-infobars",
