@@ -76,14 +76,15 @@ export class SimulateMouse {
         const link = frameRand.match(/href=\"(.*?)\"/)[1].toString().match(/(.*?)\&/)[1];
         const selectornext = `a[href^="${link}"]`;
         await frame.click(selectornext);
-        return await redirect.toNextPage(page);
+        return page;
     }
 
     public static async selectTakeRandLinkClick(page: puppeteer.Page, selector: string, redirect: Redirect) {
         const hrefAll = await page.$$(selector);
         const hrefRand = hrefAll[Math.floor(Math.random() * hrefAll.length)];
+        console.log(hrefRand.toString());
         await this.SelectMoveClick(page, hrefRand);
-        return await redirect.toNextPage(page);
+        return page;
     }
     public static async takeSelectorPosition(page: puppeteer.Page, selector: string) {
         return await page.evaluate((select) => {
@@ -137,6 +138,7 @@ export class SimulateMouse {
             await page.mouse.move(randXYZ[0], randXYZ[1], {steps: randXYZ[2]});
             await this.sleepRand(50, 200);
         }
+        return "ok";
     }
     public static async scrollLazytobottom(page: puppeteer.Page) {
         const bodyHandle = await page.$("body");
@@ -166,7 +168,7 @@ export class SimulateMouse {
         const z = this.random(65, 200);
         return [ x, y, z ];
     }
-    public static sleep = (time: number) => new Promise((res) => {setTimeout(res, time); });
+    public static sleep(time: number) { return new Promise((res) => { setTimeout(res, time); }); }
     public static sleepRand = (min: number, max: number) => new Promise((res) => {
         setTimeout(res, SimulateMouse.random(min, max));
     })

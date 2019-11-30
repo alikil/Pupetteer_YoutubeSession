@@ -42,7 +42,7 @@ export class Google {
             if (this.log.search.url === true) {this.log.saveUrl(page.url()); }
             await SimulateMouse.mousejsInject(page);
             const selector = `div#main div.g div.r > a[href^='http']`;
-            const helplink = this.wwhelpWord.replace(/\./g, "\.").replace(/\*/g, ".");
+            const helplink = this.wwhelpWord.replace(/\./g, "\.").replace(/\*/g, ".").replace(" ", ".");
             const regexHelplink = new RegExp(`${helplink}`, "g");
 
             const aaa = await page.$$eval(selector, (elems) => {

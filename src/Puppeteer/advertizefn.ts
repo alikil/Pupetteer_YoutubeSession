@@ -16,23 +16,21 @@ export class AdvertPage {
     public async main(page: puppeteer.Page) {
         await page.waitForSelector("body");
         await page.waitFor(3000);
-        console.log("loaded");
         await SimulateMouse.mousejsInject(page);
         this.UserSite = page.url().match(/\/\/(.*?)\//)[1];
         await this.WorkWithPage(page);
-        await page.close();
+        return page;
     }
     private async WorkWithPage(page: puppeteer.Page) {
         const before: string[] = [];
         for (let index = 0; index < this.steps; index++) {
-            console.log(this.UserSite);
-            console.log(page.url());
             if (this.log.advert.pic === true) {await this.log.savePicture(page, `${index}_${this.UserSite}` ); }
             if (this.log.advert.url === true) {this.log.saveUrl(page.url()); }
-            const waiter = SimulateMouse.randomMoves(page, 15);
-            const timer = SimulateMouse.sleep(this.waitAtPage * 1000);
+            // const waiter = SimulateMouse.randomMoves(page, 15);
+            const moves = SimulateMouse.randomMoves(page, this.waitAtPage / 2);
+            const timer = await SimulateMouse.sleep(this.waitAtPage * 1000);
             before.push(page.url());
-            await Promise.all([waiter, timer]).then(async () => {
+            await Promise.all([timer, moves]).then(async () => {
                 await this.ClickRandomHref(page, before);
             });
         }

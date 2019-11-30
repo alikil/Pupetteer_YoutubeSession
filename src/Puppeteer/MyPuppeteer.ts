@@ -15,13 +15,13 @@ export class MyPuppeteer {
     public UserAgent: string;
     private proxy: IProxy;
     constructor() {
-        this.initUser();
+        this.acc = this.initUser();
         this.proxy = Proxy.readProxy(this.acc);
         this.UserAgent = this.acc.useragent;
         this.browser = this.initBrowser();
         this.page = this.browser.then(async (browser) => this.initPage(browser));
     }
-    private initUser() {
+    public initUser() {
         const env: IEnv = {
             AppPath : process.env.AppPath || "C:/pupett",
             Login : process.env.Login || "abakeliya",
@@ -34,7 +34,7 @@ export class MyPuppeteer {
         if (!existsSync(`${env.AppPath}/${env.UserSite}/${env.Login}`)) {
             mkdirSync(`${env.AppPath}/${env.UserSite}/${env.Login}`);
         }
-        this.acc = new MAinSetings(env).acc;
+        return new MAinSetings(env).acc;
     }
     private initBrowser() {
         const extensions = {
