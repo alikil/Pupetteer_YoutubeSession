@@ -1,3 +1,4 @@
+import * as puppeteer from "puppeteer";
 import { Logger } from "./modules/logger";
 import { AdvertPage } from "./Puppeteer/advertizefn";
 import { SimulateMouse } from "./Puppeteer/mouseImitation";
@@ -85,24 +86,20 @@ const num = 693896;
             wwhelpWord: "quiz***-b**.******.",
         };
         const logsettings = {
-            advert: { pic: false, url: true },
-            search: { pic: false, url: true },
+            advert: { pic: false, url: false },
+            search: { pic: false, url: false },
         };
         const log = new Logger(adNumber, logsettings);
         const redirect = new Redirect(await MyPuppet.browser);
         const facebook = new Facebook(MyPuppet, data, log);
         const advPage = new AdvertPage(data.adPageRules, log);
-
         const fb = await facebook.init();
         const sitepage = await redirect.toNextPage(fb);
-        const hrefAll = await sitepage.$$(`div.vc_btn3-container.vc_btn3-inline`);
-        const hrefRand = hrefAll[Math.floor(Math.random() * hrefAll.length)];
-        await SimulateMouse.SelectMoveClick(sitepage, hrefRand);
-        const cseGoogleCom = await redirect.toNextPage(sitepage);
-        const cseselectall = await sitepage.$$(`div.gsc-thumbnail-inside div.gs-title > a.gs-title[href]`);
-        const csehrefRand = cseselectall[Math.floor(Math.random() * cseselectall.length)];
-        await SimulateMouse.SelectMoveClick(cseGoogleCom, csehrefRand);
-        const adpage = await redirect.toNextPage(sitepage);
+        const cseGoogleCom = await SimulateMouse.selectTakeRandLinkClick(sitepage, `div.vc_btn3-container.vc_btn3-inline`, redirect);
+        log.saveUrl(cseGoogleCom.url());
+        const [frm, frmsel] = ["master-1", `div#adBlock a[href^='https://www.googleadservices.com/pagead/aclk?']`];
+        const adpage = await SimulateMouse.frameClick(cseGoogleCom, frm, frmsel, redirect);
+        log.saveUrl(adpage.url());
         await advPage.main(adpage);
         MyPuppet.browser.then((br) => { br.close(); });
     }

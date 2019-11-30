@@ -1,4 +1,5 @@
 import * as puppeteer from "puppeteer";
+import { Redirect } from "./pages";
 
 export class SimulateMouse {
     public static async mousejsInject(page: puppeteer.Page) {
@@ -63,6 +64,26 @@ export class SimulateMouse {
                 // tslint:disable-next-line:no-bitwise
             }
         });
+    }
+    public static frameClick = async (page: puppeteer.Page, framesel: string, selector: string, redirect: Redirect) => {
+        const frame = page.frames().find((f) => f.name().includes(framesel));
+        const frameAll = await frame.$$eval(selector, (elems) => {
+            return elems.map((value) => {
+                return value.outerHTML;
+            });
+        });
+        const frameRand = frameAll[Math.floor(Math.random() * frameAll.length)];
+        const link = frameRand.match(/href=\"(.*?)\"/)[1].toString().match(/(.*?)\&/)[1];
+        const selectornext = `a[href^="${link}"]`;
+        await frame.click(selectornext);
+        return await redirect.toNextPage(page);
+    }
+
+    public static selectTakeRandLinkClick = async (page: puppeteer.Page, selector: string, redirect: Redirect) => {
+        const hrefAll = await page.$$(selector);
+        const hrefRand = hrefAll[Math.floor(Math.random() * hrefAll.length)];
+        await SimulateMouse.SelectMoveClick(page, hrefRand);
+        return await redirect.toNextPage(page);
     }
     public static takeSelectorPosition = async (page: puppeteer.Page, selector: string) => {
         return await page.evaluate((select) => {
