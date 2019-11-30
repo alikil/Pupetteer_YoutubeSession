@@ -38,7 +38,8 @@ export class AdvertPage {
         }
     }
     private async ClickRandomHref(page: puppeteer.Page, before?: string[]) {
-        await page.waitFor(3000);
+        await SimulateMouse.randomMoves(page, 1);
+        await page.waitFor(1000);
         let hrefAll = await page.$$(`a[href^='https://${this.UserSite}/']`);
         if (hrefAll.length < 3) {
             hrefAll = await page.$$(`a[href^='http://${this.UserSite}/']`);
@@ -47,22 +48,35 @@ export class AdvertPage {
             hrefAll = await page.$$("a[href^='/']");
         }
         const href = hrefAll[Math.floor(Math.random() * hrefAll.length)];
+        if (href === undefined) { return "ok"; }
         const checkForElemWork = await SimulateMouse.takeElementPosition(page, href);
-        if (checkForElemWork === [0, 0]) { this.ClickRandomHref(page, before); } else {
+        let readylink = "err";
+        if (checkForElemWork[0] !== 0 &&  checkForElemWork[1] !== 0) { readylink = "ok"; }
+        if (checkForElemWork[0] > 10 &&  checkForElemWork[1] > 10) { readylink = "ok"; }
+        console.log(checkForElemWork);
+        if (readylink === "err") {
+            await this.ClickRandomHref(page, before);
+            return "ok";
+        }
+        if (readylink === "ok") {
             await SimulateMouse.SelectMoveClick(page, href);
             await page.waitForNavigation({ timeout: 8000 }).then(
                 async (res) => {
                     await page.waitFor(5000);
-                    if (before.includes(page.url())) { await this.ClickRandomHref(page, before); } else {
+                    if (before.includes(page.url())) {
+                        await this.ClickRandomHref(page, before);
+                        return "ok";
+                    } else {
                         console.log("ok " + page.url());
+                        return "ok";
                     }
                 },
                 async (err) => {
                     console.log("click => err");
                     await this.ClickRandomHref(page, before);
+                    return "ok";
                 },
             );
         }
-        return "ok";
     }
 }
