@@ -4,11 +4,11 @@
   "description": "clicker for youtube videos",
   "main": "index.js",
   "scripts": {
+    "1681664": "nodemon src/1681664.ts",
+    "2268163": "nodemon src/2268163.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon src/index.ts",
-    "coinextrude": "nodemon src/social.coinextrude.com.ts",
-    "2268163": "nodemon src/2268163.ts",
-    "1681664": "nodemon src/1681664.ts"
+    "imap": "nodemon src/modules/imap.ts"
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/alikil/Pupetteer_YoutubeSession#readme",
   "dependencies": {
+    "imap-simple": "^4.3.0",
     "node-schedule": "^1.3.2",
     "nodemon": "^1.19.4",
     "puppeteer": "^2.0.0",
@@ -29,6 +30,7 @@
     "typescript": "^3.7.2"
   },
   "devDependencies": {
+    "@types/imap-simple": "^4.2.1",
     "@types/node": "^12.12.8",
     "@types/node-schedule": "^1.2.4",
     "@types/puppeteer": "^1.20.2"

@@ -39,17 +39,23 @@ export class MyPuppeteer {
     private initBrowser() {
         const extensions = {
             AdGuard : `${this.env.AppPath}/extensions/bgnkhhnnamicmpeenaelnjfhikgbkllg/3.3.2_0`,
+            PageTimer: `${this.env.AppPath}/extensions/enljfpkeopdppbphgadibdpodgjhmabm/1.7_0`,
             PupeteerRecorder : `${this.env.AppPath}/extensions/djeegiggegleadkkbgopoonhjimgehda/0.7.1_0`,
+            TaskHelper: `${this.env.AppPath}/extensions/taskhelp`,
             // TimeShift: `${env.AppPath}/extensions/nbofeaabhknfdcpoddmfckpokmncimpj/0.1.4_0`,
-            WebRTC  : `${this.env.AppPath}/extensions/bppamachkoflopbagkdoflbgfjflfnfl/1.0.4_0`,
+            VkUnblock: `${this.env.AppPath}/extensions/ceoldlgkhdbnnmojajjgfapagjccblib/3.0.5_0`,
+            WebRTC : `${this.env.AppPath}/extensions/bppamachkoflopbagkdoflbgfjflfnfl/1.0.4_0`,
         };
         const proxyurl = `${this.proxy.ip}:${this.proxy.port}`;
         return puppeteer.launch({
             args: [
-                `--disable-extensions-except=${extensions.PupeteerRecorder},${extensions.WebRTC }`,
+                `--disable-extensions-except=${extensions.PupeteerRecorder},${extensions.WebRTC},${extensions.VkUnblock},${extensions.PageTimer},${extensions.TaskHelper}`,
                 // `--load-extension=${extensions.AdGuard}`,
                 `--load-extension=${extensions.PupeteerRecorder}`,
                 `--load-extension=${extensions.WebRTC}`,
+                `--load-extension=${extensions.VkUnblock}`,
+                `--load-extension=${extensions.PageTimer}`,
+                `--load-extension=${extensions.TaskHelper}`,
                 // `--load-extension=${extensions.TimeShift}`,
                 // `--proxy-server=${proxyurl}`,
                 "--disable-setuid-sandbox",

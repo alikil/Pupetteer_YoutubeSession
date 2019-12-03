@@ -10,7 +10,7 @@ import { Yandex } from "./Search/Yandex";
 import { YoutubeWatchClickAd } from "./Youtube/youtube";
 const MyPuppet = new MyPuppeteer();
 
-const num = 2268163;
+const num = 111;
 (async function start(adNumber) {
     // Youtube
     if (adNumber === 3) {
@@ -132,8 +132,8 @@ const num = 2268163;
         const facebook = new Facebook(MyPuppet, data, log);
         const advPage = new AdvertPage(data.adPageRules, log);
         console.log(MyPuppet.acc);
-        MyPuppet.page.then(async (p) => { await p.waitFor(1000000); });
-        MyPuppet.browser.then((br) => { br.close(); });
+        // MyPuppet.page.then(async (p) => { await p.waitFor(1000000); });
+        // MyPuppet.browser.then((br) => { br.close(); });
     }
 
 })(num);
