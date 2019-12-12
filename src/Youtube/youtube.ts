@@ -15,36 +15,33 @@ export class YoutubeWatchClickAd {
         this.page = MyPuppet.page;
         this.link = link;
     }
-    public async init() {
-        return await this.page.then(async (page: puppeteer.Page) => {
-            await page.goto(this.link);
-            const pageTarget = page.target();
-            await YoutubeFunctions.clickPlayButton(page);
-            await YoutubeFunctions.clickSkipAds(page);
-            await SimulateMouse.mousejsInject(page);
-            const waiter = await SimulateMouse.randomMoves(page, 5);
-            const timer = await SimulateMouse.sleep(5000);
-            const adPage = await Promise.all([waiter, timer]).then(async () => {
-                await SimulateMouse.randomMoves(page, 5);
-                await YoutubeFunctions.clickAD(page);
-                return await this.toNextPageClick(pageTarget, page);
-            });
-            this.nextPage = adPage;
-            return adPage;
+    public async init(): Promise<puppeteer.Page> {
+        const page = await this.page;
+        await page.goto(this.link);
+        const pageTarget = page.target();
+        await YoutubeFunctions.clickPlayButton(page);
+        await YoutubeFunctions.clickSkipAds(page);
+        await SimulateMouse.mousejsInject(page);
+        const waiter = await SimulateMouse.randomMoves(page, 5);
+        const timer = await SimulateMouse.sleep(5000);
+        const adPage = await Promise.all([waiter, timer]).then(async () => {
+            await SimulateMouse.randomMoves(page, 5);
+            await YoutubeFunctions.clickAD(page);
+            return await this.toNextPageClick(pageTarget, page);
         });
+        this.nextPage = adPage;
+        return adPage;
     }
     private async toNextPageClick(
         pageTarget: puppeteer.Target,
         page: puppeteer.Page
-    ) {
+    ): Promise<puppeteer.Page> {
         const browser = await this.browser;
         const nextTarget = await browser.waitForTarget(
             t => t.opener() === pageTarget
         );
-        const newpage = await nextTarget.page().then(async newPage => {
-            await newPage.waitForSelector("body");
-            return newPage;
-        });
-        return newpage;
+        const newpagenext = await nextTarget.page();
+        await newpagenext.waitForSelector("body");
+        return newpagenext;
     }
 }

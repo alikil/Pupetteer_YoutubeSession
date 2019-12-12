@@ -11,7 +11,7 @@ import { YoutubeWatchClickAd } from "./Youtube/youtube";
 const MyPuppet = new MyPuppeteer();
 
 const num = 1681664;
-(async function start(adNumber) {
+(async function start(adNumber): Promise<void> {
     // Youtube
     if (adNumber === 3) {
         const logsettings = {

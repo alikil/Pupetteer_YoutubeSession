@@ -31,57 +31,54 @@ export class Yandex {
         this.word = data.words[Math.floor(Math.random() * data.words.length)];
         this.wwhelpWord = data.wwhelpWord;
     }
-    public async init() {
-        return this.page.then(async (page: puppeteer.Page) => {
-            await page.setUserAgent(this.useragent);
-            await page.goto(this.link, { referer: this.referer });
-            const inputSelector = "input.input__control.input__input";
-            await page.type(inputSelector, this.word, { delay: 90 });
-            await page.keyboard.press("Enter");
-            await page.waitForNavigation();
-            await page.waitFor(4000);
-            if (this.log.search.pic === true) {
-                await this.log.savePicture(page, "search");
-            }
-            if (this.log.search.url === true) {
-                this.log.saveUrl(page.url());
-            }
-            await SimulateMouse.mousejsInject(page);
-            const helplink = this.wwhelpWord
-                .replace(/\./g, ".")
-                .replace(/\*/g, ".");
-            const regexve = new RegExp(`http.?:\/\/${helplink}`, "g");
-            const selector = `ul[aria-label="Результаты поиска"] > li > div.organic_with-related_yes`;
-            console.log(regexve);
-            const aaa = await page.$$eval(selector, elems => {
-                return elems.map(value => {
-                    return value.innerHTML;
-                });
+    public async init(): Promise<puppeteer.Page> {
+        const page = await this.page;
+        await page.setUserAgent(this.useragent);
+        await page.goto(this.link, { referer: this.referer });
+        const inputSelector = "input.input__control.input__input";
+        await page.type(inputSelector, this.word, { delay: 90 });
+        await page.keyboard.press("Enter");
+        await page.waitForNavigation();
+        await page.waitFor(4000);
+        if (this.log.search.pic === true) {
+            await this.log.savePicture(page, "search");
+        }
+        if (this.log.search.url === true) {
+            this.log.saveUrl(page.url());
+        }
+        await SimulateMouse.mousejsInject(page);
+        const helplink = this.wwhelpWord
+            .replace(/\./g, ".")
+            .replace(/\*/g, ".");
+        const regexve = new RegExp(`http.?:\/\/${helplink}`, "g");
+        const selector = `ul[aria-label="Результаты поиска"] > li > div.organic_with-related_yes`;
+        console.log(regexve);
+        const aaa = await page.$$eval(selector, elems => {
+            return elems.map(value => {
+                return value.innerHTML;
             });
-            const bbf = aaa.filter(value => {
-                return value.match(regexve);
-            });
-            const link = bbf[0].match(/href=\"(.*?)\"/)[1].toString();
-            await page.setUserAgent(this.useragent);
-            const selectornext = `a[href^="${link}"]`;
-            const pageTarget = page.target();
-            await SimulateMouse.SelectMoveClick(page, selectornext);
-            return await this.toNextPage(pageTarget, page, selectornext);
         });
+        const bbf = aaa.filter(value => {
+            return value.match(regexve);
+        });
+        const link = bbf[0].match(/href=\"(.*?)\"/)[1].toString();
+        await page.setUserAgent(this.useragent);
+        const selectornext = `a[href^="${link}"]`;
+        const pageTarget = page.target();
+        await SimulateMouse.SelectMoveClick(page, selectornext);
+        return await this.toNextPage(pageTarget, page, selectornext);
     }
     private async toNextPage(
         pageTarget: puppeteer.Target,
         page: puppeteer.Page,
         selectornext: string
-    ) {
+    ): Promise<puppeteer.Page> {
         const browser = await this.browser;
         const nextTarget = await browser.waitForTarget(
             t => t.opener() === pageTarget
         );
-        const newpage = await nextTarget.page().then(async newPage => {
-            await newPage.waitForSelector("body");
-            return newPage;
-        });
-        return newpage;
+        const nextPagenew = await nextTarget.page();
+        await nextPagenew.waitForSelector("body");
+        return nextPagenew;
     }
 }

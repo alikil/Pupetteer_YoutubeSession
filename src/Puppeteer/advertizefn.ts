@@ -13,7 +13,7 @@ export class AdvertPage {
         this.steps = rules.steps;
         this.waitAtPage = rules.waitAtPage;
     }
-    public async main(page: puppeteer.Page) {
+    public async main(page: puppeteer.Page): Promise<puppeteer.Page> {
         await page.waitForSelector("body");
         await page.waitFor(3000);
         await SimulateMouse.mousejsInject(page);
@@ -21,7 +21,7 @@ export class AdvertPage {
         await this.WorkWithPage(page);
         return page;
     }
-    private async WorkWithPage(page: puppeteer.Page) {
+    private async WorkWithPage(page: puppeteer.Page): Promise<void> {
         const before: string[] = [];
         for (let index = 0; index < this.steps; index++) {
             if (this.log.advert.pic === true) {
@@ -38,7 +38,10 @@ export class AdvertPage {
             await this.ClickRandomHref(page, before);
         }
     }
-    private async ClickRandomHref(page: puppeteer.Page, before?: string[]) {
+    private async ClickRandomHref(
+        page: puppeteer.Page,
+        before?: string[]
+    ): Promise<string> {
         await SimulateMouse.randomMoves(page, 1);
         await page.waitFor(1000);
         let hrefAll = await page.$$(`a[href^='https://${this.UserSite}/']`);

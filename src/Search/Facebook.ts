@@ -33,37 +33,36 @@ export class Facebook {
         }
         this.wwhelpWord = data.wwhelpWord;
     }
-    public async init() {
-        return await this.page.then(async (page: puppeteer.Page) => {
-            await page.setUserAgent(this.useragent);
-            await page.goto(this.link, { referer: this.referer });
-            if (this.log.search.pic === true) {
-                await this.log.savePicture(page, "search");
-            }
-            if (this.log.search.url === true) {
-                this.log.saveUrl(page.url());
-            }
-            await SimulateMouse.mousejsInject(page);
-            const selector = `a[href^="http"]`;
-            const helplink = this.wwhelpWord
-                .replace(/\./g, ".")
-                .replace(/\*/g, ".");
-            const regexHelplink = new RegExp(`${helplink}`, "g");
-            const aaa = await page.$$eval(selector, elems => {
-                return elems.map(value => {
-                    return value.outerHTML;
-                });
+    public async init(): Promise<puppeteer.Page> {
+        const page = await this.page;
+        await page.setUserAgent(this.useragent);
+        await page.goto(this.link, { referer: this.referer });
+        if (this.log.search.pic === true) {
+            await this.log.savePicture(page, "search");
+        }
+        if (this.log.search.url === true) {
+            this.log.saveUrl(page.url());
+        }
+        await SimulateMouse.mousejsInject(page);
+        const selector = `a[href^="http"]`;
+        const helplink = this.wwhelpWord
+            .replace(/\./g, ".")
+            .replace(/\*/g, ".");
+        const regexHelplink = new RegExp(`${helplink}`, "g");
+        const aaa = await page.$$eval(selector, elems => {
+            return elems.map(value => {
+                return value.outerHTML;
             });
-            const bbf = aaa.filter(value => {
-                return value.match(regexHelplink);
-            });
-            const link = bbf[0]
-                .match(/href=\"(.*?)\"/)[1]
-                .toString()
-                .match(/(.*)\&/)[1];
-            const selectornext = `a[href^="${link}"]`;
-            await SimulateMouse.SelectMoveClick(page, selectornext);
-            return page;
         });
+        const bbf = aaa.filter(value => {
+            return value.match(regexHelplink);
+        });
+        const link = bbf[0]
+            .match(/href=\"(.*?)\"/)[1]
+            .toString()
+            .match(/(.*)\&/)[1];
+        const selectornext = `a[href^="${link}"]`;
+        await SimulateMouse.SelectMoveClick(page, selectornext);
+        return page;
     }
 }

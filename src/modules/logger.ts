@@ -31,7 +31,7 @@ export class Logger {
         this.path = "C:/pupett/logs";
         this.init();
     }
-    public saveUrl(info: string) {
+    public saveUrl(info: string): string {
         const file = `${this.mainPath}/${this.date}.txt`;
         const textFile = readFileSync(file, "utf8");
         if (textFile.includes(info)) {
@@ -41,7 +41,10 @@ export class Logger {
         }
         return "ok";
     }
-    public async savePicture(page: puppeteer.Page, name: string) {
+    public async savePicture(
+        page: puppeteer.Page,
+        name: string
+    ): Promise<string> {
         await page.screenshot({
             path: `${this.screenshotPath}/${name}.jpeg`,
             type: "jpeg",
@@ -50,7 +53,7 @@ export class Logger {
         await page.waitFor(1000);
         return "ok";
     }
-    private init() {
+    private init(): void {
         this.mainPath = `${this.path}/${this.adnum}/${this.date}`;
         this.screenshotPath = `${this.mainPath}/screenshot`;
         if (!existsSync(this.path)) {

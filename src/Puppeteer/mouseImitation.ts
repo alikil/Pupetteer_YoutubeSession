@@ -82,7 +82,7 @@ export class SimulateMouse {
         framesel: string,
         selector: string,
         redirect: Redirect
-    ) {
+    ): Promise<puppeteer.Page> {
         const frame = page.frames().find(f => f.name().includes(framesel));
         const frameAll = await frame.$$eval(selector, elems => {
             return elems.map(value => {
@@ -103,7 +103,7 @@ export class SimulateMouse {
         page: puppeteer.Page,
         selector: string,
         redirect: Redirect
-    ) {
+    ): Promise<puppeteer.Page> {
         const hrefAll = await page.$$(selector);
         const hrefRand = hrefAll[Math.floor(Math.random() * hrefAll.length)];
         console.log(hrefRand.toString());
@@ -113,7 +113,7 @@ export class SimulateMouse {
     public static async takeSelectorPosition(
         page: puppeteer.Page,
         selector: string
-    ) {
+    ): Promise<number[]> {
         return await page.evaluate(select => {
             function random(min: number, max: number) {
                 return Math.floor(Math.random() * (max - min + 1) + min);
@@ -128,7 +128,7 @@ export class SimulateMouse {
     public static async takeElementPosition(
         page: puppeteer.Page,
         element: puppeteer.ElementHandle<Element>
-    ) {
+    ): Promise<number[]> {
         return await page.evaluate(elem => {
             function random(min: number, max: number) {
                 return Math.floor(Math.random() * (max - min + 1) + min);
@@ -142,7 +142,7 @@ export class SimulateMouse {
     public static async SelectMoveClick(
         page: puppeteer.Page,
         selector: string | puppeteer.ElementHandle<Element>
-    ) {
+    ): Promise<void> {
         let position: number[];
         // selector
         if (typeof selector === "string") {
@@ -172,7 +172,10 @@ export class SimulateMouse {
         await this.sleep(800);
         await page.mouse.up();
     }
-    public static async randomMoves(page: puppeteer.Page, count: number) {
+    public static async randomMoves(
+        page: puppeteer.Page,
+        count: number
+    ): Promise<string> {
         for (let index = 0; index < count; index++) {
             await this.scrollBottomRand(page);
             const randXYZ = this.randomXY();
@@ -183,7 +186,9 @@ export class SimulateMouse {
         }
         return "ok";
     }
-    public static async scrollLazytobottom(page: puppeteer.Page) {
+    public static async scrollLazytobottom(
+        page: puppeteer.Page
+    ): Promise<void> {
         const bodyHandle = await page.$("body");
         const { height } = await bodyHandle.boundingBox();
         await bodyHandle.dispose();
@@ -197,7 +202,7 @@ export class SimulateMouse {
             viewportIncr = viewportIncr + viewportHeight;
         }
     }
-    public static async scrollBottomRand(page: puppeteer.Page) {
+    public static async scrollBottomRand(page: puppeteer.Page): Promise<void> {
         const viewportHeight = page.viewport().height;
         const skrl = viewportHeight / this.random(4, 12);
         await page.evaluate(heightw => {
@@ -205,13 +210,14 @@ export class SimulateMouse {
         }, skrl);
         await this.sleep(60);
     }
-    public static randomXY() {
+    public static randomXY(): number[] {
         const x = Math.floor(Math.random() * 1200);
         const y = Math.floor(Math.random() * 700);
         const z = this.random(65, 200);
         return [x, y, z];
     }
-    public static sleep(time: number) {
+    //=========================== Edit ============================
+    public static async sleep(time: number) {
         return new Promise(res => {
             setTimeout(res, time);
         });
@@ -220,7 +226,7 @@ export class SimulateMouse {
         new Promise(res => {
             setTimeout(res, SimulateMouse.random(min, max));
         });
-    public static random(min: number, max: number) {
+    public static random(min: number, max: number): number {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 }

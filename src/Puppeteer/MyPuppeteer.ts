@@ -21,7 +21,7 @@ export class MyPuppeteer {
         this.browser = this.initBrowser();
         this.page = this.browser.then(async browser => this.initPage(browser));
     }
-    public initUser() {
+    public initUser(): IMainAcc {
         const env: IEnv = {
             AppPath: process.env.AppPath || "C:/pupett",
             Login: process.env.Login || "abakeliya",
@@ -36,7 +36,7 @@ export class MyPuppeteer {
         }
         return new MAinSetings(env).acc;
     }
-    private initBrowser() {
+    private initBrowser(): Promise<puppeteer.Browser> {
         const extensions = {
             AdGuard: `${this.env.AppPath}/extensions/bgnkhhnnamicmpeenaelnjfhikgbkllg/3.3.2_0`,
             PageTimer: `${this.env.AppPath}/extensions/enljfpkeopdppbphgadibdpodgjhmabm/1.7_0`,
@@ -69,7 +69,9 @@ export class MyPuppeteer {
             userDataDir: `${this.env.AppPath}/${this.env.UserSite}/${this.env.Login}`
         });
     }
-    private async initPage(browser: puppeteer.Browser) {
+    private async initPage(
+        browser: puppeteer.Browser
+    ): Promise<puppeteer.Page> {
         const page = await browser.newPage();
         await page.setUserAgent(this.UserAgent);
         if (this.proxy.login) {

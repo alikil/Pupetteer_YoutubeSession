@@ -6,7 +6,7 @@ export class Redirect {
     constructor(browser: puppeteer.Browser) {
         this.browser = browser;
     }
-    public async toNextPage(oldPage: puppeteer.Page) {
+    public async toNextPage(oldPage: puppeteer.Page): Promise<puppeteer.Page> {
         const pageTarget = oldPage.target();
         const finalpage = await this.browser
             .waitForTarget(t => t.opener() === pageTarget, { timeout: 8000 })

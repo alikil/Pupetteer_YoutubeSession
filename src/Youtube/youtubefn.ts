@@ -2,7 +2,9 @@ import * as puppeteer from "puppeteer";
 import { SimulateMouse } from "../Puppeteer/mouseImitation";
 
 class YoutubeFunctions {
-    public static clickPlayButton = async (page: puppeteer.Page) => {
+    public static clickPlayButton = async (
+        page: puppeteer.Page
+    ): Promise<void> => {
         const youtubeStartButton = `#movie_player > div.ytp-cued-thumbnail-overlay[style="display: none;"]`;
         const youtubeStartButtonClick = `#movie_player > div.ytp-cued-thumbnail-overlay > button`;
         await page
@@ -21,7 +23,9 @@ class YoutubeFunctions {
                     });
             });
     };
-    public static clickSkipAds = async (page: puppeteer.Page) => {
+    public static clickSkipAds = async (
+        page: puppeteer.Page
+    ): Promise<void> => {
         const skipButton = `button.ytp-ad-skip-button.ytp-button`;
         await page.waitFor(5500);
         await page.waitForSelector(skipButton, { timeout: 7000 }).then(
@@ -34,24 +38,23 @@ class YoutubeFunctions {
             }
         );
     };
-    public static clickAD = async (page: puppeteer.Page) => {
+    public static clickAD = async (page: puppeteer.Page): Promise<void> => {
         const fullAdFrame = `
         #squareThrone > div.ns-khitf-e-1,
         #squareThrone > div.ns-khitf-e-2.bottom,
         iframe[src^="https://googleads.g.doubleclick.net/pagead/ads?"]
         `;
-        await page.$(fullAdFrame).then(async val => {
-            if (val === null) {
-                console.log("Ad => Nou found");
-                await page.reload();
-                await page.waitFor(5000);
-                await YoutubeFunctions.clickAD(page);
-            } else {
-                await SimulateMouse.SelectMoveClick(page, fullAdFrame);
-                console.log("ad button clicked");
-                console.log("Ad => Found");
-            }
-        });
+        const elem = await page.$(fullAdFrame);
+        if (elem === null) {
+            console.log("Ad => Nou found");
+            await page.reload();
+            await page.waitFor(5000);
+            await YoutubeFunctions.clickAD(page);
+        } else {
+            await SimulateMouse.SelectMoveClick(page, fullAdFrame);
+            console.log("ad button clicked");
+            console.log("Ad => Found");
+        }
     };
 }
 

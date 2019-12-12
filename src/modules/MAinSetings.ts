@@ -7,7 +7,7 @@ export class MAinSetings {
     constructor(env: IEnv) {
         this.acc = this.init(env);
     }
-    private init(env: IEnv) {
+    private init(env: IEnv): IMainAcc {
         const accountFile = `${env.AppPath}/Sites/Gmail/${env.Login}.txt`;
         let acc: IMainAcc;
         if (!existsSync(accountFile)) {

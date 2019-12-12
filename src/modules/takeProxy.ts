@@ -3,7 +3,7 @@ import { IMainAcc } from "../interfaces/interfaces";
 import { IProxy } from "../interfaces/proxy";
 import { GetDate } from "./date";
 class Proxy {
-    public static readProxy(acc: IMainAcc) {
+    public static readProxy(acc: IMainAcc): IProxy {
         let proxy: IProxy;
         if (acc.proxy.includes("@")) {
             const arrProxy = acc.proxy.match(/^(.*):(.*)@(.*):(.*$)/);
@@ -23,14 +23,15 @@ class Proxy {
     constructor(acc: IMainAcc) {
         this.proxy = this.init(acc.country);
     }
-    private init(country: string) {
+    private init(country: string): string {
         const proxylist = JSON.parse(
             readFileSync(
                 `C:/Socks/${country}_${new GetDate().dmy}.json`,
                 "utf8"
             )
         );
-        const proxy = proxylist[Math.floor(Math.random() * proxylist.length)];
+        const proxy: string =
+            proxylist[Math.floor(Math.random() * proxylist.length)];
         return proxy;
     }
 }

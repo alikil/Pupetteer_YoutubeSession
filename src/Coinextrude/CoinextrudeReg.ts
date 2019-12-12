@@ -12,7 +12,6 @@ export class Coinextrude {
     private link: string;
     private log: Logger;
     constructor(MyPuppet: MyPuppeteer, link: string, referer?: string) {
-        this.log = new Logger();
         this.browser = MyPuppet.browser;
         this.page = MyPuppet.page;
         this.useragent = MyPuppet.UserAgent;
@@ -20,12 +19,11 @@ export class Coinextrude {
         this.referer = referer;
         this.init();
     }
-    private async init() : Promise<void>{
+    private async init(): Promise<void> {
         const page = await this.page;
 
         await page.setUserAgent(this.useragent);
-        await page.goto(this.link, { referer: this.referer});
-        this.log.saveTo(page.url());
+        await page.goto(this.link, { referer: this.referer });
         const pageTarget = page.target();
         await SimulateMouse.mousejsInject(page);
 
@@ -35,10 +33,12 @@ export class Coinextrude {
         await Promise.all([waiter, timer]);
 
         await SimulateMouse.randomMoves(page, 5);
-            await page.waitFor(2500000);
-            
+        await page.waitFor(2500000);
+
         page.close();
-        this.browser.then((browser) => { browser.close(); });
+        this.browser.then(browser => {
+            browser.close();
+        });
     }
 
     /*
