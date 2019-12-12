@@ -2,6 +2,7 @@ import * as puppeteer from "puppeteer";
 import { Logger } from "../modules/logger";
 import { SimulateMouse } from "../Puppeteer/mouseImitation";
 import { MyPuppeteer } from "../Puppeteer/MyPuppeteer";
+import { runInThisContext } from "vm";
 
 export class Coinextrude {
     public browser: Promise<puppeteer.Browser>;
@@ -19,8 +20,29 @@ export class Coinextrude {
         this.referer = referer;
         this.init();
     }
-    private init() {
-        this.page.then(async (page: puppeteer.Page) => {
+    private async init() : Promise<void>{
+        const page = await this.page;
+
+        await page.setUserAgent(this.useragent);
+        await page.goto(this.link, { referer: this.referer});
+        this.log.saveTo(page.url());
+        const pageTarget = page.target();
+        await SimulateMouse.mousejsInject(page);
+
+        await page.waitFor(200000);
+        const waiter = await SimulateMouse.randomMoves(page, 5);
+        const timer = await SimulateMouse.sleep(5000);
+        await Promise.all([waiter, timer]);
+
+        await SimulateMouse.randomMoves(page, 5);
+            await page.waitFor(2500000);
+            
+        page.close();
+        this.browser.then((browser) => { browser.close(); });
+    }
+
+    /*
+    private async init() { await this.page(async (page: puppeteer.Page) => {
             await page.setUserAgent(this.useragent);
             await page.goto(this.link, { referer: this.referer});
             this.log.saveTo(page.url());
@@ -28,7 +50,6 @@ export class Coinextrude {
             await SimulateMouse.mousejsInject(page);
 
             await page.waitFor(200000);
-            /*
             const waiter = await SimulateMouse.randomMoves(page, 5);
             const timer = await SimulateMouse.sleep(5000);
             await Promise.all([waiter, timer]).then(async () => {
@@ -38,7 +59,7 @@ export class Coinextrude {
             });
             page.close();
             this.browser.then((browser) => { browser.close(); });
-            */
         });
     }
+    */
 }

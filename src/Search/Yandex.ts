@@ -34,25 +34,31 @@ export class Yandex {
     public async init() {
         return this.page.then(async (page: puppeteer.Page) => {
             await page.setUserAgent(this.useragent);
-            await page.goto(this.link, { referer: this.referer});
+            await page.goto(this.link, { referer: this.referer });
             const inputSelector = "input.input__control.input__input";
-            await page.type(inputSelector, this.word, {delay: 90});
+            await page.type(inputSelector, this.word, { delay: 90 });
             await page.keyboard.press("Enter");
             await page.waitForNavigation();
             await page.waitFor(4000);
-            if (this.log.search.pic === true) {await this.log.savePicture(page, "search" ); }
-            if (this.log.search.url === true) {this.log.saveUrl(page.url()); }
+            if (this.log.search.pic === true) {
+                await this.log.savePicture(page, "search");
+            }
+            if (this.log.search.url === true) {
+                this.log.saveUrl(page.url());
+            }
             await SimulateMouse.mousejsInject(page);
-            const helplink = this.wwhelpWord.replace(/\./g, "\.").replace(/\*/g, ".");
+            const helplink = this.wwhelpWord
+                .replace(/\./g, ".")
+                .replace(/\*/g, ".");
             const regexve = new RegExp(`http.?:\/\/${helplink}`, "g");
             const selector = `ul[aria-label="Результаты поиска"] > li > div.organic_with-related_yes`;
             console.log(regexve);
-            const aaa = await page.$$eval(selector, (elems) => {
-                return elems.map((value) => {
+            const aaa = await page.$$eval(selector, elems => {
+                return elems.map(value => {
                     return value.innerHTML;
                 });
             });
-            const bbf = aaa.filter((value) => {
+            const bbf = aaa.filter(value => {
                 return value.match(regexve);
             });
             const link = bbf[0].match(/href=\"(.*?)\"/)[1].toString();
@@ -63,10 +69,16 @@ export class Yandex {
             return await this.toNextPage(pageTarget, page, selectornext);
         });
     }
-    private async toNextPage( pageTarget: puppeteer.Target, page: puppeteer.Page, selectornext: string) {
+    private async toNextPage(
+        pageTarget: puppeteer.Target,
+        page: puppeteer.Page,
+        selectornext: string
+    ) {
         const browser = await this.browser;
-        const nextTarget = await browser.waitForTarget((t) => (t.opener() === pageTarget));
-        const newpage = await nextTarget.page().then(async (newPage) => {
+        const nextTarget = await browser.waitForTarget(
+            t => t.opener() === pageTarget
+        );
+        const newpage = await nextTarget.page().then(async newPage => {
             await newPage.waitForSelector("body");
             return newPage;
         });

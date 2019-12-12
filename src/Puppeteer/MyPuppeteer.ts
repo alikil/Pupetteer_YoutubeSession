@@ -19,13 +19,13 @@ export class MyPuppeteer {
         this.proxy = Proxy.readProxy(this.acc);
         this.UserAgent = this.acc.useragent;
         this.browser = this.initBrowser();
-        this.page = this.browser.then(async (browser) => this.initPage(browser));
+        this.page = this.browser.then(async browser => this.initPage(browser));
     }
     public initUser() {
         const env: IEnv = {
-            AppPath : process.env.AppPath || "C:/pupett",
-            Login : process.env.Login || "abakeliya",
-            UserSite : process.env.UserSite || "Youtube",
+            AppPath: process.env.AppPath || "C:/pupett",
+            Login: process.env.Login || "abakeliya",
+            UserSite: process.env.UserSite || "Youtube"
         };
         this.env = env;
         if (!existsSync(`${env.AppPath}/${env.UserSite}`)) {
@@ -38,13 +38,13 @@ export class MyPuppeteer {
     }
     private initBrowser() {
         const extensions = {
-            AdGuard : `${this.env.AppPath}/extensions/bgnkhhnnamicmpeenaelnjfhikgbkllg/3.3.2_0`,
+            AdGuard: `${this.env.AppPath}/extensions/bgnkhhnnamicmpeenaelnjfhikgbkllg/3.3.2_0`,
             PageTimer: `${this.env.AppPath}/extensions/enljfpkeopdppbphgadibdpodgjhmabm/1.7_0`,
-            PupeteerRecorder : `${this.env.AppPath}/extensions/djeegiggegleadkkbgopoonhjimgehda/0.7.1_0`,
+            PupeteerRecorder: `${this.env.AppPath}/extensions/djeegiggegleadkkbgopoonhjimgehda/0.7.1_0`,
             TaskHelper: `${this.env.AppPath}/extensions/taskhelp`,
             // TimeShift: `${env.AppPath}/extensions/nbofeaabhknfdcpoddmfckpokmncimpj/0.1.4_0`,
             VkUnblock: `${this.env.AppPath}/extensions/ceoldlgkhdbnnmojajjgfapagjccblib/3.0.5_0`,
-            WebRTC : `${this.env.AppPath}/extensions/bppamachkoflopbagkdoflbgfjflfnfl/1.0.4_0`,
+            WebRTC: `${this.env.AppPath}/extensions/bppamachkoflopbagkdoflbgfjflfnfl/1.0.4_0`
         };
         const proxyurl = `${this.proxy.ip}:${this.proxy.port}`;
         return puppeteer.launch({
@@ -60,13 +60,13 @@ export class MyPuppeteer {
                 // `--proxy-server=${proxyurl}`,
                 "--disable-setuid-sandbox",
                 "--no-sandbox",
-                "--disable-infobars",
+                "--disable-infobars"
             ],
             defaultViewport: { width: 1280, height: 720 },
             headless: false,
             ignoreDefaultArgs: ["--mute-audio"],
             ignoreHTTPSErrors: true,
-            userDataDir: `${this.env.AppPath}/${this.env.UserSite}/${this.env.Login}`,
+            userDataDir: `${this.env.AppPath}/${this.env.UserSite}/${this.env.Login}`
         });
     }
     private async initPage(browser: puppeteer.Browser) {
@@ -76,7 +76,7 @@ export class MyPuppeteer {
             const proxyAuth = {
                 username: this.proxy.login,
                 // tslint:disable-next-line:object-literal-sort-keys
-                password: this.proxy.pass,
+                password: this.proxy.pass
             };
             await page.authenticate(proxyAuth);
             return page;

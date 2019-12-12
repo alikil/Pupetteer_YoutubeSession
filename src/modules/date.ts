@@ -10,8 +10,8 @@ export class GetDate {
     constructor() {
         const date = new Date();
         this.hour = date.getHours();
-        this.min  = date.getMinutes();
-        this.sec  = date.getSeconds();
+        this.min = date.getMinutes();
+        this.sec = date.getSeconds();
         this.year = date.getFullYear();
         this.month = date.getMonth() + 1;
         this.day = date.getDate();

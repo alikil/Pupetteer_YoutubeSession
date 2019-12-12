@@ -33,10 +33,15 @@ export class YoutubeWatchClickAd {
             return adPage;
         });
     }
-    private async toNextPageClick( pageTarget: puppeteer.Target, page: puppeteer.Page) {
+    private async toNextPageClick(
+        pageTarget: puppeteer.Target,
+        page: puppeteer.Page
+    ) {
         const browser = await this.browser;
-        const nextTarget = await browser.waitForTarget((t) => (t.opener() === pageTarget));
-        const newpage = await nextTarget.page().then(async (newPage) => {
+        const nextTarget = await browser.waitForTarget(
+            t => t.opener() === pageTarget
+        );
+        const newpage = await nextTarget.page().then(async newPage => {
             await newPage.waitForSelector("body");
             return newPage;
         });

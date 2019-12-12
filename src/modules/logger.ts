@@ -1,10 +1,16 @@
-import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import {
+    appendFileSync,
+    existsSync,
+    mkdirSync,
+    readFileSync,
+    writeFileSync
+} from "fs";
 import * as puppeteer from "puppeteer";
 import { GetDate } from "./date";
 
 export interface ILogSettings {
-    search: { pic: boolean, url: boolean };
-    advert: { pic: boolean, url: boolean };
+    search: { pic: boolean; url: boolean };
+    advert: { pic: boolean; url: boolean };
 }
 
 export class Logger {
@@ -14,8 +20,8 @@ export class Logger {
     public mainPath: string;
     public screenshotPath: string;
     public logSettings: ILogSettings;
-    public search: { pic: boolean; url: boolean; };
-    public advert: { pic: boolean; url: boolean; };
+    public search: { pic: boolean; url: boolean };
+    public advert: { pic: boolean; url: boolean };
     constructor(adnum: number, logSettings: ILogSettings) {
         this.search = logSettings.search;
         this.advert = logSettings.advert;
@@ -36,14 +42,20 @@ export class Logger {
         return "ok";
     }
     public async savePicture(page: puppeteer.Page, name: string) {
-        await page.screenshot({path: `${this.screenshotPath}/${name}.jpeg`, type: "jpeg", fullPage: false });
+        await page.screenshot({
+            path: `${this.screenshotPath}/${name}.jpeg`,
+            type: "jpeg",
+            fullPage: false
+        });
         await page.waitFor(1000);
         return "ok";
     }
     private init() {
         this.mainPath = `${this.path}/${this.adnum}/${this.date}`;
         this.screenshotPath = `${this.mainPath}/screenshot`;
-        if (!existsSync(this.path)) { mkdirSync(this.path); }
+        if (!existsSync(this.path)) {
+            mkdirSync(this.path);
+        }
         if (!existsSync(`${this.path}/${this.adnum}`)) {
             mkdirSync(`${this.path}/${this.adnum}`);
         }

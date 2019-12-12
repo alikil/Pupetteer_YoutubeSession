@@ -8,7 +8,7 @@ export class AdvertPage {
     public waitAtPage: number;
     public log: Logger;
     public UserSite: string;
-    constructor(rules: { steps: any; waitAtPage: number; }, log: Logger) {
+    constructor(rules: { steps: any; waitAtPage: number }, log: Logger) {
         this.log = log;
         this.steps = rules.steps;
         this.waitAtPage = rules.waitAtPage;
@@ -24,15 +24,18 @@ export class AdvertPage {
     private async WorkWithPage(page: puppeteer.Page) {
         const before: string[] = [];
         for (let index = 0; index < this.steps; index++) {
-            if (this.log.advert.pic === true) {await this.log.savePicture(page, `${index}_${this.UserSite}` ); }
-            if (this.log.advert.url === true) {this.log.saveUrl(page.url()); }
+            if (this.log.advert.pic === true) {
+                await this.log.savePicture(page, `${index}_${this.UserSite}`);
+            }
+            if (this.log.advert.url === true) {
+                this.log.saveUrl(page.url());
+            }
             // const waiter = SimulateMouse.randomMoves(page, 15);
             const moves = SimulateMouse.randomMoves(page, this.waitAtPage / 2);
             const timer = await SimulateMouse.sleep(this.waitAtPage * 1000);
             before.push(page.url());
-            await Promise.all([timer, moves]).then(async () => {
-                await this.ClickRandomHref(page, before);
-            });
+            await Promise.all([timer, moves]);
+            await this.ClickRandomHref(page, before);
         }
     }
     private async ClickRandomHref(page: puppeteer.Page, before?: string[]) {
@@ -46,11 +49,20 @@ export class AdvertPage {
             hrefAll = await page.$$("a[href^='/']");
         }
         const href = hrefAll[Math.floor(Math.random() * hrefAll.length)];
-        if (href === undefined) { return "ok"; }
-        const checkForElemWork = await SimulateMouse.takeElementPosition(page, href);
+        if (href === undefined) {
+            return "ok";
+        }
+        const checkForElemWork = await SimulateMouse.takeElementPosition(
+            page,
+            href
+        );
         let readylink = "err";
-        if (checkForElemWork[0] !== 0 &&  checkForElemWork[1] !== 0) { readylink = "ok"; }
-        if (checkForElemWork[0] > 10 &&  checkForElemWork[1] > 10) { readylink = "ok"; }
+        if (checkForElemWork[0] !== 0 && checkForElemWork[1] !== 0) {
+            readylink = "ok";
+        }
+        if (checkForElemWork[0] > 10 && checkForElemWork[1] > 10) {
+            readylink = "ok";
+        }
         console.log(checkForElemWork);
         if (readylink === "err") {
             await this.ClickRandomHref(page, before);
@@ -59,7 +71,7 @@ export class AdvertPage {
         if (readylink === "ok") {
             await SimulateMouse.SelectMoveClick(page, href);
             await page.waitForNavigation({ timeout: 8000 }).then(
-                async (res) => {
+                async res => {
                     await page.waitFor(5000);
                     if (before.includes(page.url())) {
                         await this.ClickRandomHref(page, before);
@@ -69,11 +81,11 @@ export class AdvertPage {
                         return "ok";
                     }
                 },
-                async (err) => {
+                async err => {
                     console.log("click => err");
                     await this.ClickRandomHref(page, before);
                     return "ok";
-                },
+                }
             );
         }
     }

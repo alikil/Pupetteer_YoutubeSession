@@ -45,19 +45,31 @@ export class SimulateMouse {
             `;
             document.head.appendChild(styleElement);
             document.body.appendChild(box);
-            document.addEventListener("mousemove", (event) => {
-            box.style.left = event.pageX + "px";
-            box.style.top = event.pageY + "px";
-            updateButtons(event.buttons);
-            }, true);
-            document.addEventListener("mousedown", (event) => {
-            updateButtons(event.buttons);
-            box.classList.add("button-" + event.which);
-            }, true);
-            document.addEventListener("mouseup", (event) => {
-            updateButtons(event.buttons);
-            box.classList.remove("button-" + event.which);
-            }, true);
+            document.addEventListener(
+                "mousemove",
+                event => {
+                    box.style.left = event.pageX + "px";
+                    box.style.top = event.pageY + "px";
+                    updateButtons(event.buttons);
+                },
+                true
+            );
+            document.addEventListener(
+                "mousedown",
+                event => {
+                    updateButtons(event.buttons);
+                    box.classList.add("button-" + event.which);
+                },
+                true
+            );
+            document.addEventListener(
+                "mouseup",
+                event => {
+                    updateButtons(event.buttons);
+                    box.classList.remove("button-" + event.which);
+                },
+                true
+            );
             function updateButtons(buttons: number | boolean) {
                 // tslint:disable-next-line:curly
                 for (let i = 0; i < 5; i++);
@@ -65,30 +77,47 @@ export class SimulateMouse {
             }
         });
     }
-    public static async frameClick(page: puppeteer.Page, framesel: string, selector: string, redirect: Redirect) {
-        const frame = page.frames().find((f) => f.name().includes(framesel));
-        const frameAll = await frame.$$eval(selector, (elems) => {
-            return elems.map((value) => {
+    public static async frameClick(
+        page: puppeteer.Page,
+        framesel: string,
+        selector: string,
+        redirect: Redirect
+    ) {
+        const frame = page.frames().find(f => f.name().includes(framesel));
+        const frameAll = await frame.$$eval(selector, elems => {
+            return elems.map(value => {
                 return value.outerHTML;
             });
         });
         const frameRand = frameAll[Math.floor(Math.random() * frameAll.length)];
-        const link = frameRand.match(/href=\"(.*?)\"/)[1].toString().match(/(.*?)\&/)[1];
+        const link = frameRand
+            .match(/href=\"(.*?)\"/)[1]
+            .toString()
+            .match(/(.*?)\&/)[1];
         const selectornext = `a[href^="${link}"]`;
         await frame.click(selectornext);
         return page;
     }
 
-    public static async selectTakeRandLinkClick(page: puppeteer.Page, selector: string, redirect: Redirect) {
+    public static async selectTakeRandLinkClick(
+        page: puppeteer.Page,
+        selector: string,
+        redirect: Redirect
+    ) {
         const hrefAll = await page.$$(selector);
         const hrefRand = hrefAll[Math.floor(Math.random() * hrefAll.length)];
         console.log(hrefRand.toString());
         await this.SelectMoveClick(page, hrefRand);
         return page;
     }
-    public static async takeSelectorPosition(page: puppeteer.Page, selector: string) {
-        return await page.evaluate((select) => {
-            function random(min: number, max: number) { return Math.floor( Math.random() * (max - min + 1) + min); }
+    public static async takeSelectorPosition(
+        page: puppeteer.Page,
+        selector: string
+    ) {
+        return await page.evaluate(select => {
+            function random(min: number, max: number) {
+                return Math.floor(Math.random() * (max - min + 1) + min);
+            }
             const element = document.querySelector(select);
             const position = element.getBoundingClientRect();
             const xrand = random(position.left, position.right);
@@ -96,46 +125,60 @@ export class SimulateMouse {
             return Promise.resolve([xrand, yrand]);
         }, selector);
     }
-    public static async takeElementPosition(page: puppeteer.Page, element: puppeteer.ElementHandle<Element>) {
-        return await page.evaluate((elem) => {
-            function random(min: number, max: number) { return Math.floor( Math.random() * (max - min + 1) + min); }
+    public static async takeElementPosition(
+        page: puppeteer.Page,
+        element: puppeteer.ElementHandle<Element>
+    ) {
+        return await page.evaluate(elem => {
+            function random(min: number, max: number) {
+                return Math.floor(Math.random() * (max - min + 1) + min);
+            }
             const position = elem.getBoundingClientRect();
             const xrand = random(position.left, position.right);
             const yrand = random(position.top, position.bottom);
             return Promise.resolve([xrand, yrand]);
         }, element);
     }
-    public static async SelectMoveClick(page: puppeteer.Page, selector: string | puppeteer.ElementHandle<Element>) {
+    public static async SelectMoveClick(
+        page: puppeteer.Page,
+        selector: string | puppeteer.ElementHandle<Element>
+    ) {
         let position: number[];
         // selector
         if (typeof selector === "string") {
-            await page.$eval(selector, (elem) => {
-                elem.scrollIntoView({block: "nearest", behavior: "smooth" });
-                return new Promise((res) => {setTimeout(res, 2000); });
+            await page.$eval(selector, elem => {
+                elem.scrollIntoView({ block: "nearest", behavior: "smooth" });
+                return new Promise(res => {
+                    setTimeout(res, 2000);
+                });
             });
             position = await this.takeSelectorPosition(page, selector);
             console.log("Selector position => " + position);
         } else {
-        // Element
-            await page.evaluate((elem) => {
-                elem.scrollIntoView({block: "nearest", behavior: "smooth" });
-                return new Promise((res) => {setTimeout(res, 2000); });
+            // Element
+            await page.evaluate(elem => {
+                elem.scrollIntoView({ block: "nearest", behavior: "smooth" });
+                return new Promise(res => {
+                    setTimeout(res, 2000);
+                });
             }, selector);
             position = await this.takeElementPosition(page, selector);
             console.log("Element position => " + position);
         }
         await page.waitFor(1000);
-        await page.mouse.move(position[0], position[1], {steps: 100});
+        await page.mouse.move(position[0], position[1], { steps: 100 });
         await this.sleep(100);
         await page.mouse.down();
         await this.sleep(800);
         await page.mouse.up();
     }
     public static async randomMoves(page: puppeteer.Page, count: number) {
-        for (let index = 0; index < count ; index++) {
+        for (let index = 0; index < count; index++) {
             await this.scrollBottomRand(page);
             const randXYZ = this.randomXY();
-            await page.mouse.move(randXYZ[0], randXYZ[1], {steps: randXYZ[2]});
+            await page.mouse.move(randXYZ[0], randXYZ[1], {
+                steps: randXYZ[2]
+            });
             await this.sleepRand(50, 200);
         }
         return "ok";
@@ -147,7 +190,7 @@ export class SimulateMouse {
         const viewportHeight = page.viewport().height;
         let viewportIncr = 0;
         while (viewportIncr + viewportHeight < height) {
-            await page.evaluate((heightw) => {
+            await page.evaluate(heightw => {
                 window.scrollBy(0, heightw);
             }, viewportHeight);
             await this.sleep(20);
@@ -157,7 +200,7 @@ export class SimulateMouse {
     public static async scrollBottomRand(page: puppeteer.Page) {
         const viewportHeight = page.viewport().height;
         const skrl = viewportHeight / this.random(4, 12);
-        await page.evaluate((heightw) => {
+        await page.evaluate(heightw => {
             window.scrollBy({ top: heightw, behavior: "smooth" });
         }, skrl);
         await this.sleep(60);
@@ -166,11 +209,18 @@ export class SimulateMouse {
         const x = Math.floor(Math.random() * 1200);
         const y = Math.floor(Math.random() * 700);
         const z = this.random(65, 200);
-        return [ x, y, z ];
+        return [x, y, z];
     }
-    public static sleep(time: number) { return new Promise((res) => { setTimeout(res, time); }); }
-    public static sleepRand = (min: number, max: number) => new Promise((res) => {
-        setTimeout(res, SimulateMouse.random(min, max));
-    })
-    public static random(min: number, max: number) {return Math.floor(Math.random() * (max - min + 1) ) + min; }
+    public static sleep(time: number) {
+        return new Promise(res => {
+            setTimeout(res, time);
+        });
+    }
+    public static sleepRand = (min: number, max: number) =>
+        new Promise(res => {
+            setTimeout(res, SimulateMouse.random(min, max));
+        });
+    public static random(min: number, max: number) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
 }
